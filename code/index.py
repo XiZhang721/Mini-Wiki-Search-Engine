@@ -121,7 +121,7 @@ def write_local(filename:str, terms:dict):
 if __name__ == "__main__":
     # change the path to the entire dataset
     load_wiki("data/wiki_300.csv")
-    stopping_words = load_stoppings("data/stoppings.txt")
+    all_stoppings = load_stoppings("data/stoppings.txt")
     search_index = get_tokens(all_stoppings)
     terms = load_terms(search_index)
     write_local("data/index.txt", terms)
