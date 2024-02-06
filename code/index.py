@@ -49,27 +49,15 @@ def load_stoppings(filename:str):
     return stoppings
 
 def load_wiki(filename:str):
-    pattern = re.compile(r'^(\d+),\s*([^,]+),\s*(.+)')
-
     with open(filename, mode='r') as file:
         # Create a CSV reader
         csv_reader = csv.reader(file)
-        
-        id:int = 0
-        title:str = ""
-        content:str = ""
         # Iterate over each row in the CSV
         for row in csv_reader:
             row_str = ','.join(row)
-            match = pattern.match(row_str)
-            if match:
-                if(id!=0 and title != "" and content != ""):
-                    wikis.append(Wiki(id, title, content))
-                #print(match.groups())
-                id, title, content = match.groups()
-            else:
-                content += row_str
-        wikis.append(Wiki(id, title, content))
+            parts = row_str.split(',', 2)
+            id, title, content = id, title, content = parts
+            wikis.append(Wiki(id, title, content))
         print(len(wikis))
 
 def get_tokens(stopping_words:list):
@@ -77,8 +65,10 @@ def get_tokens(stopping_words:list):
     index_dict = dict()
     for wiki in wikis:
         tokens = (wiki.title + wiki.content).lower()
+        #print(tokens)
         tokens = re.sub(r"[^a-zA-Z0-9\s]", " ", tokens).split()
         cleaned_tokens = stemmer.stemWords(clean_tokens(tokens, stopping_words))
+        #print(cleaned_tokens)
         index_dict[wiki.id] = cleaned_tokens
     return index_dict
 

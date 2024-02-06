@@ -4,6 +4,8 @@ import time
 import math
 import csv
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 class Wiki():
     def __init__(self, id, title, content):
@@ -134,9 +136,7 @@ def search_single_word(search_index:dict, search_word: str):
     if(search_word in child_dict.keys()):
         find_term:term = child_dict[search_word]
         result = find_term.appearances
-        return result
-    else:
-        return result
+    return result
 
 # phrase search
 def search_phrase(search_index:dict, query:str):
@@ -237,28 +237,40 @@ def search_proximity(search_index:dict, queries:list, n:int):
             result.append(doc)
     return result
 
+# tested and found not working faster, no longer using
+def search_two_parts(search_index:dict, part1:str, part2:str)->list:
+    futures = []
+    results = []
+    with ThreadPoolExecutor() as executor:
+        future1 = executor.submit(search_query, search_index, part1)
+        futures.append(future1)
+        future2 = executor.submit(search_query, search_index, part2)
+        futures.append(future2)
+        for future in concurrent.futures.as_completed(futures):
+            results.append(future.result())
+    return results
+
 # search the index by a query
 def search_query(search_index:dict, query:str) -> list:
     if(' OR ' in query):
-        parts = query.split(" OR ")
-        part1 = parts[0].strip()
-        part2 = parts[1].strip()
-        part1_result = search_query(search_index, part1)
-        part2_result = search_query(search_index, part2)
-        result = or_expression(part1_result, part2_result)
+        parts = query.split(" OR ",1)
+        result1 = search_query(search_index,parts[0].strip())
+        result2 = search_query(search_index,parts[1].strip())
+        result = or_expression(result1, result2)
         result.sort()
         return result
     elif(' AND ' in query):
-        parts = query.split(" AND ")
-        part1 = parts[0].strip()
-        part2 = parts[1].strip()
-        part1_result = search_query(search_index, part1)
-        part2_result = search_query(search_index, part2)
-        result = and_expression(part1_result, part2_result)
+        parts = query.split(" AND ",1)
+        result1 = search_query(search_index,parts[0].strip())
+        result2 = search_query(search_index,parts[1].strip())
+        result = and_expression(result1,result2) 
+        # The one using multi-threading:
+        # results = search_two_parts(search_index,parts[0].strip(),parts[1].strip())
+        # result = and_expression(results[0], results[1])
         result.sort()
         return result
     elif('NOT ' in query):
-        parts = query.split("NOT ")
+        parts = query.split("NOT ",1)
         part1 = parts[1].strip()
         part1_result = search_query(search_index, part1)
         result = not_expression(part1_result)
@@ -299,7 +311,7 @@ if __name__ == "__main__":
 
     # The searching
     start_time = time.time()
-    query  = "John"
+    query  = "Hallam AND Windsor AND Bristol AND Christ AND Church"
     search_result = search_query(search_index, query)
     print("Searching Finished, Time Used:" + str((time.time() - start_time)))
     if(len(search_result) == 0):
