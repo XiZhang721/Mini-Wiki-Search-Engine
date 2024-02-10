@@ -151,32 +151,60 @@ def search_phrase(search_index:dict, query:str):
     # find the union of doc that contains all terms
     docs = []
     terms = dict()
-    
-    for term in filtered_terms:
-        single_result = search_single_word(search_index, term)
-        if(len(docs) == 0):
-            docs = list(single_result.keys())
+
+    #***Single Thread***
+    # for term in filtered_terms:
+    #     single_result = search_single_word(search_index, term)
+    #     if(len(docs) == 0):
+    #         docs = list(single_result.keys())
+    #     else:
+    #         docs = and_expression(docs, list(single_result.keys()))
+    #     terms[term] = single_result
+
+    #***Multi-Thread***
+    future_to_term = {}
+    # Collect all results first
+    with ThreadPoolExecutor() as executor:
+        # Submit all search tasks
+        for term in filtered_terms:
+            future = executor.submit(search_single_word, search_index, term)
+            future_to_term[future] = term
+
+    # Collect all results first
+    term_to_result = {}
+    for future in concurrent.futures.as_completed(future_to_term):
+        term = future_to_term[future]
+        try:
+            result = future.result()
+            term_to_result[term] = result
+        except Exception as e:
+            print(f"Search term: {term} raised an exception: {e}")
+
+    # Now, process the results sequentially to update docs and terms
+    for term, result in term_to_result.items():
+        if not docs:
+            docs = list(result.keys())
         else:
-            docs = and_expression(docs, list(single_result.keys()))
-        terms[term] = single_result
+            docs = and_expression(docs, list(result.keys()))
+        terms[term] = result
 
     # remove the appearance that are not in docs for all terms
-    filtered_terms = dict()
-    for term in terms:
+    searched_terms = dict()
+    for term in filtered_terms:
         term_appearance = terms[term]
         filtered_appearance = dict()
         for a in term_appearance.keys():
             if(a in docs):
                 #print(a)
                 filtered_appearance[a] = term_appearance[a]
-        filtered_terms[term] = filtered_appearance
+        searched_terms[term] = filtered_appearance
 
     # get the result by comparing word positions
     result = list()
     for doc in docs:
         word_positions = []
-        for key in filtered_terms.keys():
-            term = filtered_terms[key]
+        for key in searched_terms.keys():
+            term = searched_terms[key]
             word_positions.append(term[doc].word_pos)
         is_match = False
         #print("doc: " + str(doc) + "\nlists: " + str(word_positions) )
@@ -200,31 +228,49 @@ def search_proximity(search_index:dict, queries:list, n:int):
     # find the union of doc that contains all terms
     docs = []
     terms = dict()
-    
-    for term in filtered_terms:
-        single_result = search_single_word(search_index, term)
-        if(len(docs) == 0):
-            docs = list(single_result.keys())
+    #***Multi-Thread***
+    future_to_term = {}
+    # Collect all results first
+    with ThreadPoolExecutor() as executor:
+        # Submit all search tasks
+        for term in filtered_terms:
+            future = executor.submit(search_single_word, search_index, term)
+            future_to_term[future] = term
+
+    # Collect all results first
+    term_to_result = {}
+    for future in concurrent.futures.as_completed(future_to_term):
+        term = future_to_term[future]
+        try:
+            result = future.result()
+            term_to_result[term] = result
+        except Exception as e:
+            print(f"Search term: {term} raised an exception: {e}")
+
+    # Now, process the results sequentially to update docs and terms
+    for term, result in term_to_result.items():
+        if not docs:
+            docs = list(result.keys())
         else:
-            docs = and_expression(docs, list(single_result.keys()))
-        terms[term] = single_result
-    
+            docs = and_expression(docs, list(result.keys()))
+        terms[term] = result
+            
     # remove the appearance that are not in docs for all terms
-    filtered_terms = dict()
-    for term in terms:
+    searched_terms = dict()
+    for term in filtered_terms:
         term_appearance = terms[term]
         filtered_appearance = dict()
         for a in term_appearance:
             if(a in docs):
                 filtered_appearance[a] = term_appearance[a]
-        filtered_terms[term] = filtered_appearance
+        searched_terms[term] = filtered_appearance
 
     # seach by comparing word_pos
     result = list()
     for doc in docs:
         word_positions = []
-        for key in filtered_terms:
-            term = filtered_terms[key]
+        for key in searched_terms:
+            term = searched_terms[key]
             word_positions.append(term[doc].word_pos)
         is_match = False
         for i in word_positions[0]:
@@ -257,6 +303,9 @@ def search_query(search_index:dict, query:str) -> list:
         result1 = search_query(search_index,parts[0].strip())
         result2 = search_query(search_index,parts[1].strip())
         result = or_expression(result1, result2)
+        # The one using multi-threading:
+        # results = search_two_parts(search_index,parts[0].strip(),parts[1].strip())
+        # result = or_expression(results[0], results[1])
         result.sort()
         return result
     elif(' AND ' in query):
@@ -311,8 +360,9 @@ if __name__ == "__main__":
 
     # The searching
     start_time = time.time()
-    query  = "Hallam AND Windsor AND Bristol AND Christ AND Church"
-    search_result = search_query(search_index, query)
+    query_and  = "Hallam AND Windsor AND Bristol AND Christ AND Church"
+    query_phrase = "\"literary work was undertaken\""
+    search_result = search_query(search_index, query_phrase)
     print("Searching Finished, Time Used:" + str((time.time() - start_time)))
     if(len(search_result) == 0):
         print("No search result found.")
