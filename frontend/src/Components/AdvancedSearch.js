@@ -1,0 +1,118 @@
+import React, { useState } from 'react';
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField, IconButton, Box, Paper, Typography } from '@material-ui/core';
+import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+function AdvancedSearchPage() {
+  const navigate = useNavigate();
+  const [searchTerms, setSearchTerms] = useState([{ type: 'phrase', value: '', proximity: 1 }]);
+  const [booleanType, setBooleanType] = useState('AND');
+
+  const handleAddSearchTerm = () => {
+    if (searchTerms.length < 5) {
+      setSearchTerms([...searchTerms, { type: 'phrase', value: '', proximity: 1 }]);
+    }
+  };
+
+  const handleSearchTermChange = (index, key, value) => {
+    const updatedTerms = [...searchTerms];
+    updatedTerms[index][key] = value;
+    setSearchTerms(updatedTerms);
+  };
+
+  const handleRemoveSearchTerm = (index) => {
+    const updatedTerms = [...searchTerms];
+    updatedTerms.splice(index, 1);
+    setSearchTerms(updatedTerms);
+  };
+
+  const handleSearch = () => {
+    console.log({ booleanType, searchTerms });
+    navigate('/results', { state: { query: '' } });
+  };
+
+  return (
+    <Box display="flex" justifyContent="flex-end" padding={2}>
+      <Box width="65%">
+        <Button onClick={handleAddSearchTerm} variant="contained" color="primary" style={{ marginBottom: 20 }}>
+          Add Search Term
+        </Button>
+
+        <Paper style={{ padding: 20, marginBottom: 20, backgroundColor: '#E9E5D6' }}>
+          <FormControl fullWidth style={{ marginBottom: 20 }}>
+            <InputLabel id="boolean-type-select-label" style={{ color: '#000' }}>Boolean Type</InputLabel>
+            <Select
+              labelId="boolean-type-select-label"
+              id="boolean-type-select"
+              value={booleanType}
+              onChange={(e) => setBooleanType(e.target.value)}
+              style={{ width: '20%', color: 'black', backgroundColor: '#FFF' }}
+            >
+              <MenuItem value="AND">AND</MenuItem>
+              <MenuItem value="OR">OR</MenuItem>
+            </Select>
+          </FormControl>
+
+          {searchTerms.map((term, index) => (
+            <Paper key={index} style={{ padding: 10, display: 'flex', alignItems: 'center', marginBottom: 5, backgroundColor: '#FFFFFF' }}>
+              <FormControl style={{ width: '10%', marginRight: '15px' }}>
+                <InputLabel id={`search-type-select-label-${index}`} style={{ color: '#000' }}>Type</InputLabel>
+                <Select
+                  labelId={`search-type-select-label-${index}`}
+                  id={`search-type-select-${index}`}
+                  value={term.type}
+                  onChange={(e) => handleSearchTermChange(index, 'type', e.target.value)}
+                  style={{ color: 'black' }}
+                >
+                  <MenuItem value="phrase">Phrase</MenuItem>
+                  <MenuItem value="proximity">Proximity</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Search Term"
+                variant="outlined"
+                value={term.value}
+                onChange={(e) => handleSearchTermChange(index, 'value', e.target.value)}
+                style={{ flexGrow: 1, marginRight: '15px', backgroundColor: 'white' }}
+              />
+              {term.type === 'proximity' && (
+                <TextField
+                  label="Distance"
+                  type="number"
+                  InputProps={{ inputProps: { min: 1, max: 10 } }}
+                  variant="outlined"
+                  value={term.proximity}
+                  onChange={(e) => handleSearchTermChange(index, 'proximity', parseInt(e.target.value, 10))}
+                  style={{ width: '10%', marginRight: '15px', backgroundColor: 'white' }}
+                />
+              )}
+              <IconButton onClick={() => handleRemoveSearchTerm(index)} style={{ color: 'black' }}>
+                <DeleteIcon />
+              </IconButton>
+            </Paper>
+          ))}
+        </Paper>
+
+        <Box display="flex" justifyContent="flex-end">
+          <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginRight: 10 }}>
+            Search
+          </Button>
+          <Button onClick={() => navigate('/')} variant="contained">
+            Back
+          </Button>
+        </Box>
+      </Box>
+
+      <Box width="30%" style={{ backgroundColor: '#333', color: 'white', padding: 20 }}>
+        <Typography variant="body1">
+          {/* This is a placeholder text. Replace or update this text as necessary. */}
+          Information or instructions related to advanced search can go here.
+        </Typography>
+        {/* Additional content or instructions for advanced search can be added here. */}
+      </Box>
+    </Box>
+  );
+}
+
+export default AdvancedSearchPage;
+
