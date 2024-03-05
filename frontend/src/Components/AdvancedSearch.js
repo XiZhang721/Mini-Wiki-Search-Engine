@@ -35,11 +35,11 @@ function AdvancedSearchPage() {
   return (
     <Box style={{display:"flex", justifyContent:"flex-end",backgroundColor:'#FFF', height:'100vh', flexDirection:"row"}}>
       <Box style = {{width:"70%" ,backgroundColor:'#E9E5D6', height :'100%', alignItems:'stretch'}}>
-        <Button onClick={handleAddSearchTerm} variant="contained" color="primary" style={{ marginBottom: 20, marginTop: 20, marginLeft:"1.75%"}}>
+        <Button onClick={handleAddSearchTerm} variant="contained" color="primary" style={{ marginBottom: 20, marginTop: 20, marginLeft:"2.25%"}}>
           Add Search Term
         </Button>
 
-        <Paper style={{ padding: 20, marginBottom: 20, backgroundColor:  "#FFF" ,width: '92%', marginLeft:"1.75%", alignItems: 'stretch'}}>
+        <Paper style={{ padding: 20, marginBottom: 20, backgroundColor:  "#FFF" , marginLeft:"2.25%",marginRight:"2.25%", alignItems: 'stretch'}}>
           <FormControl fullWidth style={{ marginBottom: 20 }}>
             <InputLabel id="boolean-type-select-label" style={{ color: '#000' }}>Boolean Search Type</InputLabel>
             <Select
@@ -55,7 +55,7 @@ function AdvancedSearchPage() {
           </FormControl>
 
           {searchTerms.map((term, index) => (
-            <Paper key={index} style={{ padding: 10, display: 'flex', alignItems: 'center', marginBottom: 5, backgroundColor: '#FFFFFF', marginTop:10}}>
+            <Paper key={index} style={{ padding: 10, display: 'flex', alignItems: 'center', marginBottom: 5, backgroundColor: '#FFFFFF', marginTop:10,marginRight: "2.25%"}}>
               <FormControl style={{ width: '13%', marginRight: '15px' }}>
                 <InputLabel id={`search-type-select-label-${index}`} style={{ color: '#000' }}>Type</InputLabel>
                 <Select
