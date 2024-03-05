@@ -41,14 +41,14 @@ function SearchPage() {
           <img src={logo} alt="Logo" className="logo" />
         </a>
       </div>
-      <Grid item xs={12} style={{ width: '100%' }}>
+      <Grid item xs={12} style={{ width: '60%' }}>
         <form className='form' onSubmit={handleSubmit} autoComplete="off" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <TextField
             id="search-bar"
             placeholder="Search"
             value={content}
             onChange={e => setContent(e.target.value)}
-            style={{ width: '100%', marginBottom: 10 }}
+            style={{ width: '100%', marginBottom: 10 ,background: '#FFF'}}
             InputProps={{
               endAdornment: (
                 <IconButton type="submit">
@@ -75,6 +75,7 @@ function SearchPage() {
               label={term}
               onClick={() => handleQuickSearch(term)}
               variant="outlined"
+              style = {{background: '#FFF'}}
             />
           </Grid>
         ))}
