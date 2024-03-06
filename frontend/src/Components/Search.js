@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Grid, IconButton, TextField, Button, Chip, Typography, Box } from '@material-ui/core';
-import { SearchOutlined } from '@material-ui/icons';
+import { SearchOutlined, AccountCircleOutlined } from '@material-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo.png';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function SearchPage() {
   let navigate = useNavigate();
   const [content, setContent] = useState('');
-
-  // Simulated user authentication status
-  const isLoggedIn = true; // Adjust based on your authentication logic
+  const userId = localStorage.getItem('userId');
+  const isLoggedIn = userId ? true : false;
 
   // Placeholder data for quick searches. Adjust as needed or fetch from server.
   const quickSearchTerms = ["Quick Search 1", "Quick Search 2", "Quick Search 3"].slice(0, 6); // Example with fewer than 6
@@ -27,10 +27,19 @@ function SearchPage() {
     navigate('./results', { state: { searchTerm: term } });
   };
 
+  const handleLoginClick = () => {
+    navigate('./login'); 
+  };
+
+  const handleLogoutClick = () => {
+    localStorage.removeItem('userId');
+    navigate('/'); 
+  };
+
   return (
     <Grid
       container
-      justify="center"
+      justifyContent="center"
       alignItems="center"
       direction="column"
       className='searchPage'
@@ -68,7 +77,7 @@ function SearchPage() {
       <Typography variant="h6" style={{ marginTop: 20 }}>
         {isLoggedIn ? "Based on your search history:" : "Popular searching terms:"}
       </Typography>
-      <Grid container justify="center" spacing={1} style={{ marginTop: 10 }}>
+      <Grid container justifyContent="center" spacing={1} style={{ marginTop: 10 }}>
         {quickSearchTerms.map((term, index) => (
           <Grid item key={index}>
             <Chip
@@ -80,6 +89,20 @@ function SearchPage() {
           </Grid>
         ))}
       </Grid>
+      {!isLoggedIn && (
+        <div style={{ position: 'fixed', top: 20, left: 20 }}>
+          <IconButton onClick={handleLoginClick}>
+            <AccountCircleOutlined fontSize="large" />
+          </IconButton>
+        </div>
+      )}
+      {isLoggedIn && (
+        <div style={{ position: 'fixed', top: 20, left: 20 }}>
+          <IconButton onClick={handleLogoutClick}>
+            <LogoutIcon fontSize="large" />
+          </IconButton>
+        </div>
+      )}
     </Grid>
   );
 }

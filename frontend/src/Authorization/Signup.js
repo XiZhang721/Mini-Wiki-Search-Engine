@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import { useUserAuth } from "../UserAuthContext";
+import { Grid } from '@material-ui/core';
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -16,16 +17,23 @@ const Signup = () => {
     setError("");
     try {
       await signUp(email, password);
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <>
-      <div className="p-4 box">
-        <h2 className="mb-3">Firebase/ React Auth Signup</h2>
+    <Grid
+      container
+      justify="center"
+      alignItems="center"
+      direction="column"
+      className='searchPage'
+      style={{ minHeight: "100vh" }}>
+      
+      <div className="p-4 box" style={{ fontSize: '1.5rem'}}>
+        <h2 className="mb-3">User Signup</h2>
         
         {error && <Alert variant="danger">{error}</Alert>}
 
@@ -36,6 +44,7 @@ const Signup = () => {
               type="email"
               placeholder="Email address"
               onChange={(e) => setEmail(e.target.value)}
+              style={{ fontSize: '1.2rem', padding: '10px' }}
             />
           </Form.Group>
 
@@ -44,6 +53,7 @@ const Signup = () => {
               type="password"
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
+              style={{ fontSize: '1.2rem', padding: '10px' }}
             />
           </Form.Group>
 
@@ -53,11 +63,21 @@ const Signup = () => {
             </Button>
           </div>
         </Form>
+
+
+        <div className="p-4 box mt-3 text-center">
+        Already have an account? <Link to="/Login">Log In</Link>
+        </div>
+
       </div>
-      <div className="p-4 box mt-3 text-center">
-        Already have an account? <Link to="/">Log In</Link>
-      </div>
-    </>
+
+      </Grid>
+    
+      
+      
+
+
+   
   );
 };
 

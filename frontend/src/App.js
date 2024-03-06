@@ -1,6 +1,7 @@
 import { Container, Row, Col } from "react-bootstrap";
 import React from 'react';
 import './App.css';
+import ReactDOM from 'react-dom';
 import {
   BrowserRouter as Router,
   Routes,
@@ -30,11 +31,8 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                 </Routes>
-
               </div>
-
             </Router>
-            
           </UserAuthContextProvider>
 
         </Col>

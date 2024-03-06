@@ -4,6 +4,7 @@ import { Form, Alert } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import GoogleButton from "react-google-button";
 import { useUserAuth } from "../UserAuthContext";
+import { Grid } from '@material-ui/core';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,26 +18,25 @@ const Login = () => {
     setError("");
     try {
       await logIn(email, password);
+      localStorage.setItem('userId', email);
       navigate("/");
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const handleGoogleSignIn = async (e) => {
-    e.preventDefault();
-    try {
-      await googleSignIn();
-      navigate("/");
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
   return (
-    <>
-      <div className="p-4 box">
-        <h2 className="mb-3">Firebase/ React Auth Login</h2>
+
+    <Grid
+      container
+      justify="center"
+      alignItems="center"
+      direction="column"
+      className='searchPage'
+      style={{ minHeight: "100vh" }}>
+      
+      <div className="p-4 box" style={{ fontSize: '1.5rem'}}>
+        <h2 className="mb-3">User Login</h2>
 
         {error && <Alert variant="danger">{error}</Alert>}
 
@@ -47,6 +47,7 @@ const Login = () => {
               type="email"
               placeholder="Email address"
               onChange={(e) => setEmail(e.target.value)}
+              style={{ fontSize: '1.2rem', padding: '10px' }}
             />
           </Form.Group>
 
@@ -55,6 +56,7 @@ const Login = () => {
               type="password"
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
+              style={{ fontSize: '1.2rem', padding: '10px' }}
             />
           </Form.Group>
 
@@ -64,19 +66,19 @@ const Login = () => {
             </Button>
           </div>
         </Form>
-        <hr />
-        <div>
-          <GoogleButton
-            className="g-btn"
-            type="dark"
-            onClick={handleGoogleSignIn}
-          />
+        
+
+        <div className="p-4 box mt-3 text-center">
+          Don't have an account? <Link to="/signup">Sign up</Link>
         </div>
+
       </div>
-      <div className="p-4 box mt-3 text-center">
-        Don't have an account? <Link to="/signup">Sign up</Link>
-      </div>
-    </>
+
+      </Grid>
+    
+      
+      
+    
   );
 };
 

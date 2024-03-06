@@ -18,6 +18,13 @@
   color: var(--main-font-colour)
 }
 
+.Login{
+  background-color: var(--main-bg-colour);
+  font-family: var(--main-font-family);
+  color: var(--main-font-colour);
+  align-content: center;
+}
+
 .logo{
   padding-bottom: 2%;
   width: 30%;
@@ -31,13 +38,15 @@
 
 .logo_2{
   width: 30%;
-  padding-left: 2%;
+  padding-left: 2.5%;
   padding-top: 20px;
 }
 
 .form_2{
   width:95%;
-  padding-left: 2%;
+  padding-left: 2.5%;
+  margin-top: 1%;
+  margin-bottom: 1%;
 }
 
 .title{
@@ -114,12 +123,24 @@
   background-size:var(--w) var(--w);
   background-origin:border-box;
   background-repeat:no-repeat;
+  background-color: #d4e0d7;
   
   /*content*/
   width: 95%;
   height: auto;
   box-sizing:border-box;
-  padding: "5px";
+  padding: 10px;
+  margin-left: 2.5%;
+}
+
+.box-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; 
+}
+
+.spacer {
+  margin-bottom: 16px; /* Adjust the value as needed for the desired space */
 }
 
 .boxes:hover{
@@ -129,4 +150,35 @@
 .dashed {
   margin-top: 2%;
   border-top: 3px dashed #9FBBA5;
+}
+
+.result_content{
+  display: flex;
+  justify-content: center;
+  
+
+}
+
+.content-box {
+  padding: 20px; /* Add padding for better aesthetics */
+  border: 1px solid #8e3737; /* Optional: Add a border for visual separation */
+  text-align: center; /* Center text inside the box */
+  width: 80px;
+}
+
+.box {
+  border: 1px solid #dfdfdf;
+  background-color: #fff;
+}
+
+.g-btn {
+  width: 100% !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  font-size: 15px !important;
+}
+.g-btn > div,
+.g-btn > div > svg {
+  width: 40px !important;
+  height: 38px !important;
 }
