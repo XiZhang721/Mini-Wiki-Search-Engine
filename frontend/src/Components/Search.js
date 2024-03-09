@@ -163,6 +163,11 @@ function SearchPage() {
           ))}
           </Paper>
         )}
+        <Box display="flex" justifyContent="flex-end" width="100%">
+          <Button onClick={navigateToAdvancedSearch}>
+            Advanced Search
+          </Button>
+        </Box>
         </form>
       </Grid>
       <Typography variant="h6" style={{ marginTop: 20 }}>
