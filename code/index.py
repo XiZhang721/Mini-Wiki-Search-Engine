@@ -56,7 +56,7 @@ def load_wiki(filename:str):
         for row in csv_reader:
             row_str = ','.join(row)
             parts = row_str.split(',', 2)
-            id, title, content = id, title, content = parts
+            id, title, content = parts
             wikis.append(Wiki(id, title, content))
         print(len(wikis))
 

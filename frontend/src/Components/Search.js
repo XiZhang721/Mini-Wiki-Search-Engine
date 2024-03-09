@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Grid, IconButton, TextField, Button, Chip, Typography, Box } from '@material-ui/core';
+import React, { useEffect, useState } from "react";
+import { Grid, IconButton, TextField, Button, Chip, Typography, Box, Paper } from '@material-ui/core';
 import { SearchOutlined, AccountCircleOutlined } from '@material-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo.png';
@@ -36,6 +36,72 @@ function SearchPage() {
     navigate('/'); 
   };
 
+
+
+  const [suggestedWord, setSuggestedWord] = useState('');
+  const [querySuggestions, setQuerySuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setContent(value);
+
+    if (value.endsWith(" ")) {
+      fetchNextWordSuggestion();
+      fetchSuggestions(value);
+    } else {
+      setSuggestedWord('');
+    }
+  };
+
+  const fetchNextWordSuggestion = () => {
+    // TODO: send the word to the server, and get the suggerted word
+    const words = content.trim().split(" ");
+    const lastWord = words[words.length - 1];
+    setSuggestedWord(lastWord);
+  };
+
+  const handleAddSuggestion = () => {
+    setContent(content + suggestedWord + " ");
+    fetchNextWordSuggestion()
+  };
+
+  const fetchSuggestions = (input) => {
+    // TODO: send the query to the server, and get the suggerted query
+    const query = content
+    if (input.length > 1) {
+      setQuerySuggestions([query + " suggestion 1", query + " suggestion 2", query + " suggestion 3"]);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setContent(suggestion);
+    setShowSuggestions(false);
+    setSuggestedWord('')
+    clearTimeout(blurTimeoutId);
+    setBlurTimeoutId(null);
+    setIsFocused(false);
+  };
+  const [isFocused, setIsFocused] = useState(false);
+  const [blurTimeoutId, setBlurTimeoutId] = useState(null);
+
+  const handleFocus = () => {
+    if (blurTimeoutId) {
+      clearTimeout(blurTimeoutId);
+      setBlurTimeoutId(null);
+    }
+    setIsFocused(true);
+  };
+  
+  const handleBlur = () => {
+    const id = setTimeout(() => {
+      setIsFocused(false);
+    }, 200);
+    setBlurTimeoutId(id);
+  };
+
   return (
     <Grid
       container
@@ -50,28 +116,53 @@ function SearchPage() {
           <img src={logo} alt="Logo" className="logo" />
         </a>
       </div>
-      <Grid item xs={12} style={{ width: '60%' }}>
-        <form className='form' onSubmit={handleSubmit} autoComplete="off" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <TextField
-            id="search-bar"
-            placeholder="Search"
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            style={{ width: '100%', marginBottom: 10 ,background: '#FFF'}}
-            InputProps={{
-              endAdornment: (
-                <IconButton type="submit">
-                  <SearchOutlined />
-                </IconButton>
-              ),
-            }}
-            variant="outlined"
-          />
-          <Box display="flex" justifyContent="flex-end" width="100%">
-            <Button onClick={navigateToAdvancedSearch}>
-              Advanced Search
+
+        <Typography variant="h6" style={{ marginTop: 10 , padding:10, height: '30px'}}>
+          { suggestedWord ? "Word suggestion: ": <div style={{ height: '30px', width: '100%' }}></div>}
+          {suggestedWord && (
+            <Button onClick={handleAddSuggestion} style={{ marginLeft: 10, color: 'grey', textTransform: 'none', padding: '0px 10px', fontSize: '1.25rem'}}>
+              {suggestedWord}
             </Button>
+          )}
+        </Typography>
+
+      <Grid item xs={12} style={{width: '60%' }}>
+        <form className='form' onSubmit={handleSubmit} autoComplete="false" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <TextField
+          id="search-bar"
+          placeholder="Search"
+          value={content}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          style={{ width: '100%', marginBottom: 10, paddingRight: '0'}}
+          InputProps={{
+            endAdornment: (
+              <IconButton type="submit">
+                <SearchOutlined />
+              </IconButton>
+            ),
+          }}
+          variant="outlined"
+        />
+        {showSuggestions && isFocused && (
+          <Paper style={{ 
+            position: 'absolute', 
+            marginTop: '56px',
+            width: '59.5%',
+            zIndex: 1,
+          }}>
+          {querySuggestions.map((suggestion, index) => (
+          <Box key={index} onClick={() => handleSuggestionClick(suggestion)} style={{ 
+            cursor: 'pointer', 
+            padding: 10, 
+            textAlign: 'left',
+          }}>
+            {suggestion}
           </Box>
+          ))}
+          </Paper>
+        )}
         </form>
       </Grid>
       <Typography variant="h6" style={{ marginTop: 20 }}>
@@ -96,8 +187,9 @@ function SearchPage() {
           </IconButton>
         </div>
       )}
-      {isLoggedIn && (
-        <div style={{ position: 'fixed', top: 20, left: 20 }}>
+      {isLoggedIn && (     
+        <div style={{ position: 'fixed', top: 20, left: 20 , display: 'flex', alignItems: 'center'}}>
+          <p style={{ marginRight: '10px', fontSize : '20px'}}>Hi User: {userId} !</p >
           <IconButton onClick={handleLogoutClick}>
             <LogoutIcon fontSize="large" />
           </IconButton>
