@@ -25,7 +25,8 @@ function SearchPage() {
   };
 
   const handleQuickSearch = (term) => {
-    navigate('./results', { state: { searchTerm: term } });
+    const query = `/search?query=${term}`
+    navigate('./results', { state: { searchTerm: term, searchQuery: query } });
   };
 
   const handleLoginClick = () => {

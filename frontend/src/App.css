@@ -1,5 +1,5 @@
 :root {
-  --main-bg-colour: #E9E5D6;
+  --main-bg-colour: #FFF9E2;
   --main-font-colour: #362706;
   --box-border-colour: #9FBBA5;
   --box-hover-colour: #D0C7A8;
@@ -27,7 +27,7 @@
 
 .logo{
   padding-bottom: 2%;
-  width: 30%;
+  width: 100%;
   align-content: center;
 }
 

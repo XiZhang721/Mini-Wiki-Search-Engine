@@ -71,18 +71,14 @@ function UsingFetch() {
         
         {/* remind user current search phrase */}
         <form className='form_2' autoComplete="off">
+            <p style={{ marginBottom: '14px', fontSize: "20px" }}>
+              Current searching query:
+            </p>
             <TextField
                 id="search-bar2"
                 placeholder={"Search"}
                 value={searchTerm}
                 style={{ width: "100%" }}
-                InputProps={{
-                    startAdornment: (
-                        <IconButton>
-                            <SearchOutlined style={{ marginRight: '8px' }}/>
-                        </IconButton>
-                    ),
-                }}
                 variant="outlined"
             />
         </form>
