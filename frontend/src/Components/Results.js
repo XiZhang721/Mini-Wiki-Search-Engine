@@ -42,8 +42,9 @@ function UsingFetch() {
       };
 
     let { state } = useLocation();
-    let query = state["searchTerm"];
-    const url = `http://localhost:33311/search?query=${query}`;
+    let searchTerm = state["searchTerm"]
+    let query = state["searchQuery"];
+    const url = `http://localhost:33311${query}`;
     
 
     useEffect(() => {
@@ -73,7 +74,7 @@ function UsingFetch() {
             <TextField
                 id="search-bar2"
                 placeholder={"Search"}
-                value={query}
+                value={searchTerm}
                 style={{ width: "100%" }}
                 InputProps={{
                     startAdornment: (

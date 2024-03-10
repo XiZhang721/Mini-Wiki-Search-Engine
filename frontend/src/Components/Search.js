@@ -16,7 +16,8 @@ function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
-    navigate('./results', { state: { searchTerm: content } });
+    const query = `/search?query=${content}`
+    navigate('./results', { state: { searchTerm: content, searchQuery: query } });
   };
 
   const navigateToAdvancedSearch = () => {

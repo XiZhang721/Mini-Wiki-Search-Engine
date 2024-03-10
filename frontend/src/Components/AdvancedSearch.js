@@ -46,8 +46,8 @@ function AdvancedSearchPage() {
 
   const handleSearch = () => {
     const query = constructQueryString(searchTerms, booleanType)
-    console.log(query);
-    navigate('/results', { state: { query: '' , advancedQuery: query} });
+    console.log(query)
+    navigate('/results',  { state: { searchTerm: "", searchQuery: query } } );
   };
 
   return (
