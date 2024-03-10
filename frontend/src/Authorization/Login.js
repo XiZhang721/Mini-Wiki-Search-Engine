@@ -5,6 +5,8 @@ import { Button } from "react-bootstrap";
 import GoogleButton from "react-google-button";
 import { useUserAuth } from "../UserAuthContext";
 import { Grid } from '@material-ui/core';
+import { IconButton, TextField, Chip, Typography, Box, Paper } from '@material-ui/core';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,6 +25,10 @@ const Login = () => {
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleLogoutClick = () => {
+    navigate('/'); 
   };
 
   return (
@@ -72,6 +78,13 @@ const Login = () => {
           Don't have an account? <Link to="/signup">Sign up</Link>
         </div>
 
+      </div>
+
+      <div style={{ position: 'fixed', top: 20, left: 20 , display: 'flex'}}>
+          
+          <IconButton onClick={handleLogoutClick}>
+            <LogoutIcon fontSize="large" />
+          </IconButton>
       </div>
 
       </Grid>
