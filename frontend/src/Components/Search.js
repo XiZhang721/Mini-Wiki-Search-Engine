@@ -4,6 +4,7 @@ import { SearchOutlined, AccountCircleOutlined } from '@material-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo.png';
 import LogoutIcon from '@mui/icons-material/Logout';
+import axios from 'axios';
 
 function SearchPage() {
   let navigate = useNavigate();
@@ -55,11 +56,29 @@ function SearchPage() {
     }
   };
 
+  const testNext = '{"next":"word"}'
+
   const fetchNextWordSuggestion = () => {
     // TODO: send the word to the server, and get the suggerted word
     const words = content.trim().split(" ");
     const lastWord = words[words.length - 1];
-    setSuggestedWord(lastWord);
+    const url = `http://localhost:33311/next?curr=${lastWord}`;
+    const fetchData = async () => {
+      try {
+        console.log('Sending request to:', url);
+        const response = await axios.get(url);
+        const jsonObj = JSON.parse(response);
+        const next = jsonObj.next;
+        return next;
+      } catch (error) {
+        console.error('Error:', error);
+        return '';
+      }
+    }
+    fetchData().then(next => {
+      setSuggestedWord(next);
+    });
+    
   };
 
   const handleAddSuggestion = () => {
