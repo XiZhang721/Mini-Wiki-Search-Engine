@@ -67,7 +67,7 @@ function SearchPage() {
       try {
         console.log('Sending request to:', url);
         const response = await axios.get(url);
-        const jsonObj = JSON.parse(response.data);
+        const jsonObj = response.data;
         const next = jsonObj.next;
         return next;
       } catch (error) {

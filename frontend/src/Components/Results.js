@@ -53,9 +53,9 @@ function UsingFetch() {
     const testObject = 
     '[{"id": "12345","title": "test title 1","value": "test value 1"},{"id": "54321","title": "test title 2","value": "test value 2"}]';
 
-    const retrieved_data = JSON.parse(testObject);
-    console.log(retrieved_data);
-
+    //const retrieved_data = JSON.parse(testObject);
+    //console.log(retrieved_data);
+    var retrieved_data = []
 
 
     useEffect(() => {
@@ -63,6 +63,7 @@ function UsingFetch() {
         try {
           console.log('Sending request to:', url);
           const response = await axios.get(url);
+          retrieved_data = response.data
           console.log('Response:', response.data);
         } catch (error) {
           console.error('Error:', error);
