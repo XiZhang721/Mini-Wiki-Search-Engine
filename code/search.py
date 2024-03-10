@@ -6,6 +6,34 @@ import csv
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
+from flask import Flask, request, jsonify
+import redis
+import json
+import time
+
+
+# app = Flask(__name__)
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+def convert_getall(getall_val):
+    return {key.decode(): [item for item in json.loads(value.decode())] for key, value in getall_val.items()}
+
+def convert_getall_deckey(getall_val):
+    return {key.decode(): None for key, _ in getall_val.items()}
+
+def convert_only_key(getall_key): 
+    a_list = []
+    for item in getall_key:
+        try:
+            a_list.append(int(item.decode()))
+        except:
+            continue
+    return a_list
+
+def convert_get(get_val):
+    return [item for item in json.loads(get_val.decode())]
+
+
 
 class Wiki():
     def __init__(self, id, title, content):
@@ -41,74 +69,6 @@ def load_stoppings(filename:str):
     file.close()
     return stoppings
 
-def load_wiki(filename:str):
-    pattern = re.compile(r'^(\d+),\s*([^,]+),\s*(.+)')
-
-    with open(filename, mode='r') as file:
-        # Create a CSV reader
-        csv_reader = csv.reader(file)
-        
-        id:int = 0
-        title:str = ""
-        content:str = ""
-        # Iterate over each row in the CSV
-        for row in csv_reader:
-            row_str = ','.join(row)
-            match = pattern.match(row_str)
-            if match:
-                if(id!=0 and title != "" and content != ""):
-                    wikis.append(Wiki(id, title, content))
-                #print(match.groups())
-                id, title, content = match.groups()
-            else:
-                content += row_str
-        wikis.append(Wiki(id, title, content))
-        #print(len(wikis))
-
-def load_index(filename:str):
-    parent_dict = dict()
-    all_index_set = set()
-    with open(filename, 'r', encoding='UTF-8-sig') as file:
-        lines = file.readlines()
-        is_first = True
-        curr_term = term("default")
-        for line in lines:
-            if(line[0] != "\t"):
-                if(not is_first):
-                    i = curr_term.token[0]
-                    if(i in parent_dict.keys()):
-                        child_dict = parent_dict[i]
-                        child_dict[curr_term.token] = curr_term
-                        parent_dict[i] = child_dict
-                    else:
-                        child_dict = dict()
-                        child_dict[curr_term.token] = curr_term
-                        parent_dict[i] = child_dict
-                curr_term = term("default")
-                is_first = False
-                line_splitted =  re.sub(r"[^a-zA-Z0-9\s]", " ", line.lower()).split()
-                curr_term.token = line_splitted[0]
-                curr_term.count = int(line_splitted[1])
-            else:
-                line_splitted =  re.sub(r"[^a-zA-Z0-9\s]", " ", line.lower()).split()
-                line_int = list(map(int, line_splitted))
-                doc_index = line_int.pop(0)
-                all_index_set.add(doc_index)
-                curr_term.add_appearance(doc_index, line_int)
-        
-        # adding the last term to the dictionary
-        i = curr_term.token[0]
-        if(i in parent_dict.keys()):
-            child_dict = parent_dict[i]
-            child_dict[curr_term.token] = curr_term
-            parent_dict[i] = child_dict
-        else:
-            child_dict = dict()
-            child_dict[curr_term.token] = curr_term
-            parent_dict[i] = child_dict
-            
-    file.close()
-    return parent_dict, list(all_index_set)
 
 # clean the search word
 def clean_search_word(word:str):
@@ -123,23 +83,36 @@ def and_expression(result1:list, result2:list):
     result = list(set(result1) & set(result2))
     return result
 
-def not_expression(result1:list):
-    result = list(set(all_index) - set(result1))
-    return result
+# def not_expression(result1:list):
+#     result = list(set(all_index) - set(result1))
+#     return result
 
 # search a single term
-def search_single_word(search_index:dict, search_word: str):
+def search_single_word(search_word: str):
     search_word = clean_search_word(search_word)
-    result = dict()
-    i = search_word[0]
-    child_dict = search_index[i]
-    if(search_word in child_dict.keys()):
-        find_term:term = child_dict[search_word]
-        result = find_term.appearances
+    # start_time = time.time()
+    i = r.hgetall(search_word)
+    # i = r.hvals(search_word)
+    # print("hgetall Searching Finished, Time Used:" + str((time.time() - start_time)))   
+    # start_time = time.time() 
+    # print(i)
+    result = convert_getall_deckey(i)
+    # print("Searching Finished, Time Used:" + str((time.time() - start_time)))   
     return result
 
+    
+# search a single term_only key
+def search_single_word_ONLY_KEY(search_word: str):
+    search_word = clean_search_word(search_word)
+    i = r.hkeys(search_word)
+    result = convert_only_key(i)
+    # print(result)
+    return result
+
+
 # phrase search
-def search_phrase(search_index:dict, query:str):
+def search_phrase(query:str):
+    # start_time = time.time()
     query = re.sub(r"[^a-zA-Z0-9\s]", " ", query.lower())
     terms = query.split()
     filtered_terms = []
@@ -151,72 +124,52 @@ def search_phrase(search_index:dict, query:str):
     # find the union of doc that contains all terms
     docs = []
     terms = dict()
-
+    
+    
+    
+    # start_time2 = time.time()
     #***Single Thread***
-    # for term in filtered_terms:
-    #     single_result = search_single_word(search_index, term)
-    #     if(len(docs) == 0):
-    #         docs = list(single_result.keys())
-    #     else:
-    #         docs = and_expression(docs, list(single_result.keys()))
-    #     terms[term] = single_result
-
-    #***Multi-Thread***
-    future_to_term = {}
-    # Collect all results first
-    with ThreadPoolExecutor() as executor:
-        # Submit all search tasks
-        for term in filtered_terms:
-            future = executor.submit(search_single_word, search_index, term)
-            future_to_term[future] = term
-
-    # Collect all results first
-    term_to_result = {}
-    for future in concurrent.futures.as_completed(future_to_term):
-        term = future_to_term[future]
-        try:
-            result = future.result()
-            term_to_result[term] = result
-        except Exception as e:
-            print(f"Search term: {term} raised an exception: {e}")
-
-    # Now, process the results sequentially to update docs and terms
-    for term, result in term_to_result.items():
-        if not docs:
-            docs = list(result.keys())
-        else:
-            docs = and_expression(docs, list(result.keys()))
-        terms[term] = result
-
-    # remove the appearance that are not in docs for all terms
-    searched_terms = dict()
     for term in filtered_terms:
-        term_appearance = terms[term]
-        filtered_appearance = dict()
-        for a in term_appearance.keys():
-            if(a in docs):
-                #print(a)
-                filtered_appearance[a] = term_appearance[a]
-        searched_terms[term] = filtered_appearance
+        # start_time = time.time()
+        single_result = search_single_word_ONLY_KEY(term)
+        # print("sing      , Time Used:" + str(time.time() - start_time))
+        if(len(docs) == 0):
+            # start_time = time.time()
+            docs = single_result
+            # print("if      , Time Used:" + str(time.time() - start_time))
+        else:
+            docs = and_expression(docs, single_result)
+            # print("else  , Time Used:" + str(time.time() - start_time))
+        terms[term] = single_result
 
+    # print("2  , Time Used:" + str(time.time() - start_time2))
+
+    # start_time = time.time()
     # get the result by comparing word positions
     result = list()
     for doc in docs:
         word_positions = []
-        for key in searched_terms.keys():
-            term = searched_terms[key]
-            word_positions.append(term[doc].word_pos)
-        is_match = False
-        #print("doc: " + str(doc) + "\nlists: " + str(word_positions) )
+        for term in filtered_terms:
+            term = clean_search_word(term)
+            word_positions.append(convert_get(r.hget(term,str(doc))))
+        is_match = True
+        # print(word_positions)
         for i in word_positions[0]:
-            if((i + 1) in word_positions[1]):
-                is_match = True
+            is_match = True
+            for j in range(1, len(word_positions)):
+                currMatch = False
+                for k in word_positions[j]:
+                    currMatch = False
+                    if(k - i == j ):
+                        currMatch = True
+                        break
+                    is_match = is_match and currMatch
+            if(is_match):
+                result.append(doc)
                 break
-        if(is_match):
-            result.append(doc)
     return result
 
-def search_proximity(search_index:dict, queries:list, n:int):
+def search_proximity(queries:list, n:int):
     terms = list()
     for query in queries:
         terms.append(re.sub(r"[^a-zA-Z0-9\s]", "", query.lower()))
@@ -227,60 +180,55 @@ def search_proximity(search_index:dict, queries:list, n:int):
     
     # find the union of doc that contains all terms
     docs = []
-    terms = dict()
-    #***Multi-Thread***
-    future_to_term = {}
-    # Collect all results first
-    with ThreadPoolExecutor() as executor:
-        # Submit all search tasks
-        for term in filtered_terms:
-            future = executor.submit(search_single_word, search_index, term)
-            future_to_term[future] = term
-
-    # Collect all results first
-    term_to_result = {}
-    for future in concurrent.futures.as_completed(future_to_term):
-        term = future_to_term[future]
-        try:
-            result = future.result()
-            term_to_result[term] = result
-        except Exception as e:
-            print(f"Search term: {term} raised an exception: {e}")
-
-    # Now, process the results sequentially to update docs and terms
-    for term, result in term_to_result.items():
-        if not docs:
-            docs = list(result.keys())
-        else:
-            docs = and_expression(docs, list(result.keys()))
-        terms[term] = result
-            
-    # remove the appearance that are not in docs for all terms
-    searched_terms = dict()
+    # terms = dict()
+  
     for term in filtered_terms:
-        term_appearance = terms[term]
-        filtered_appearance = dict()
-        for a in term_appearance:
-            if(a in docs):
-                filtered_appearance[a] = term_appearance[a]
-        searched_terms[term] = filtered_appearance
+        # print(term)
+        single_result = search_single_word_ONLY_KEY(term)
+        # print(term, single_result)
+        if(len(docs) == 0):
+            # docs = list(single_result.keys())
+            docs = single_result
+        else:
+            docs = and_expression(docs, single_result)
+        # terms[term] = single_result
+            
+    # # remove the appearance that are not in docs for all terms
+    # searched_terms = dict()
+    # for term in filtered_terms:
+    #     term_appearance = terms[term]
+    #     filtered_appearance = dict()
+    #     for a in term_appearance:
+    #         if(a in docs):
+    #             filtered_appearance[a] = term_appearance[a]
+    #     searched_terms[term] = filtered_appearance
 
+    st = time.time()
     # seach by comparing word_pos
     result = list()
+    ### TODO: Rewrite this function to speed up 10x
+    print(docs)
     for doc in docs:
         word_positions = []
-        for key in searched_terms:
-            term = searched_terms[key]
-            word_positions.append(term[doc].word_pos)
-        is_match = False
+        for term in filtered_terms:
+            term = clean_search_word(term)
+            # print(r.hget('henry',214730))
+            word_positions.append(convert_get(r.hget(term,doc)))
+        is_match = True
         for i in word_positions[0]:
-            if(is_match): break
-            for j in word_positions[1]:
-                if(abs(j - i) <= n):
-                    is_match = True
-                    break
-        if(is_match):
-            result.append(doc)
+            is_match = True
+            for j in range(1, len(word_positions)):
+                currMatch = False
+                for k in word_positions[j]:
+                    currMatch = False
+                    if(abs(k - i) <= j * n):
+                        currMatch = True
+                        break
+                    is_match = is_match and currMatch
+            if(is_match):
+                result.append(doc)
+            break
+    print("ST =>>> ", time.time() - st)
     return result
 
 # tested and found not working faster, no longer using
@@ -297,33 +245,34 @@ def search_two_parts(search_index:dict, part1:str, part2:str)->list:
     return results
 
 # search the index by a query
-def search_query(search_index:dict, query:str) -> list:
+def search_query(query:str) -> list:
     if(' OR ' in query):
         parts = query.split(" OR ",1)
-        result1 = search_query(search_index,parts[0].strip())
-        result2 = search_query(search_index,parts[1].strip())
+        result1 = search_query(parts[0].strip())
+        result2 = search_query(parts[1].strip())
         result = or_expression(result1, result2)
         # The one using multi-threading:
         # results = search_two_parts(search_index,parts[0].strip(),parts[1].strip())
         # result = or_expression(results[0], results[1])
-        result.sort()
+        # result.sort()
         return result
     elif(' AND ' in query):
         parts = query.split(" AND ",1)
-        result1 = search_query(search_index,parts[0].strip())
-        result2 = search_query(search_index,parts[1].strip())
+        result1 = search_query(parts[0].strip())
+        result2 = search_query(parts[1].strip())
         result = and_expression(result1,result2) 
         # The one using multi-threading:
         # results = search_two_parts(search_index,parts[0].strip(),parts[1].strip())
         # result = and_expression(results[0], results[1])
-        result.sort()
+        # result.sort()
         return result
     elif('NOT ' in query):
         parts = query.split("NOT ",1)
         part1 = parts[1].strip()
-        part1_result = search_query(search_index, part1)
-        result = not_expression(part1_result)
-        result.sort()
+        part1_result = search_query(part1)
+        # result = not_expression(part1_result)
+        result = list(search_single_word(query).keys())
+        # result.sort()
         return result
     elif("#" in query):
         n = 0
@@ -332,16 +281,16 @@ def search_query(search_index:dict, query:str) -> list:
         if match:
             n = int(match.group(1))
             queries = [x.strip() for x in match.group(2).split(',')]
-        result = search_proximity(search_index,queries,n)
-        result.sort()
+        result = search_proximity(queries,n)
+        # result.sort()
         return result
     elif("\"" in query):
-        result = search_phrase(search_index,query)
-        result.sort()
+        result = search_phrase(query)
+        # result.sort()
         return result
     else:
-        result = list(search_single_word(search_index, query).keys())
-        result.sort()
+        result = list(search_single_word(query).keys())
+        # result.sort()
         return result
 
 def get_title(id:int)->str:
@@ -350,23 +299,98 @@ def get_title(id:int)->str:
             return wiki.title
     return None
 
+# TODO: sort
+def search(query:str)-> list:
+    result = search_query(query=query)
+    clean_q = [clean_search_word(i) for i in re.split(' AND | OR ',query)]
+    # st = time.time()
+    # record = []
+    # for i in range(len(result)):
+    #     val_res = 0
+    #     for j in clean_q:
+    #         val_res += len(r.hget(j,result[i]))
+    #     record.append((val_res,result[i]))
+    # print('first=>>>> ', time.time() -st)
+        
+    # st = time.time()
+    record_1 = [(0,i) for i in result]
+    for j in clean_q:
+        record_1 =[(x+len(i), y) for (x,y),i in zip(record_1,r.hmget(j,result))]
+    # print('seccc=>>>> ', time.time() -st)
+    record_1.sort(reverse=True)    
+    
+    # record.sort(reverse=True)
+    # print()
+    # return [y for _,y in record] == [y for _,y in record_1]
+    return [y for _,y in record_1]
+    
+
+
+# @app.route('/search', methods=['GET'])
+# def get_data():
+#     query_param = request.args.get('query')
+#     user_param = request.args.get('user')
+#     if not query_param:
+#         return jsonify({'error': 'No value'}), 400
+#     try:
+#         query_data = query_param
+#         # temp = query_data.split(" ")
+#         if (query_data.split(" ")[1] != 'OR' or 
+#             query_data.split(" ")[1] != 'AND'):
+#             query_data = "\"" + str(query_data) + "\"" 
+        
+#         print(query_data)
+#         search_result = search_query(str(query_data))
+#         # print(str(search_result))
+#         return str(search_result)
+#     # jsonify(query_data)
+#     except ValueError as e:
+#         return jsonify({'error': 'Invalid JSON'}), 400
+
 if __name__ == "__main__":
     start_time = time.time()
-    load_wiki("data/wiki_300.csv")
-    all_stoppings = load_stoppings("data/stoppings.txt")
-    search_index, all_index = load_index('data/index.txt')
-    all_index.sort()
-    print("Loading Finished, Time Used:" + str((time.time() - start_time)))
-
+    # all_stoppings = load_stoppings("data/stoppings.txt")
+    # search_index, all_index = load_index('data/index.txt')
+    # all_index.sort()
+    # print("Loading Finished, Time Used:" + str((time.time() - start_time)))
+    # print(len(all_index))
+    # print(search_query(search_index=search_index, query="Xi AND Jin AND Ping"))
     # The searching
-    start_time = time.time()
-    query_and  = "Hallam AND Windsor AND Bristol AND Christ AND Church"
-    query_phrase = "\"literary work was undertaken\""
-    search_result = search_query(search_index, query_phrase)
+    # start_time = time.time()
+    # query_and  = "Hallam AND Windsor AND Bristol AND Christ AND Church"
+    # query_phrase = "\"literary work was undertaken\""
+    # search_result = search_query(search_index, query_phrase)
+    # print("Searching Finished, Time Used:" + str((time.time() - start_time)))
+    # if(len(search_result) == 0):
+    #     print("No search result found.")
+    # else:
+    #     print("The search result:")
+    #     for id in search_result:
+    #         print("id: " + str(id) +"; title: " + get_title(id))
+    # temp = dict()
+    # start_time = time.time()
+    # query_phrase  = "Xi AND Jin AND Ping"
+    # query_phrase  = "Harry AND Potter"
+    # query_phrase = "\"literary work was undertaken\""
+    # query_phrase = "\"harry potter\""
+    query_prox = "#2(Henry, Hallam)"
+    # search_result = r.hkeys("work")
+    search_result = search_query(query_prox)
+    # search_single_word_ONLY_KEY('hallam')
+    # search_single_word_ONLY_KEY('henry')
+    # r.hgetall('henry')
+    # print(r.hget('segment','6584222'))
+    # print(r.hget('henry',214730))
+    # search_result = search_single_word_ONLY_KEY("Work")
+    # search_single_word("harry")
+    # r.hgetall("harry")
     print("Searching Finished, Time Used:" + str((time.time() - start_time)))
-    if(len(search_result) == 0):
-        print("No search result found.")
-    else:
-        print("The search result:")
-        for id in search_result:
-            print("id: " + str(id) +"; title: " + get_title(id))
+    print(search_result)
+    # start_time = time.time()
+    # search_single_word(dict(),"xi")
+    # print("Searching Finished, Time Used:" + str((time.time() - start_time)))
+    # start_time = time.time()
+    # r.hgetall('xi')
+    # print("Searching Finished, Time Used:" + str((time.time() - start_time)))
+    # app.run(host='localhost', port=33311,debug=True)
+

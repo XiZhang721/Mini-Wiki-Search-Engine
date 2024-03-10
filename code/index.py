@@ -64,7 +64,7 @@ def get_tokens(stopping_words:list):
     stemmer = Stemmer.Stemmer('english')
     index_dict = dict()
     for wiki in wikis:
-        tokens = (wiki.title + wiki.content).lower()
+        tokens = (wiki.title + ' ' + wiki.content).lower()
         #print(tokens)
         tokens = re.sub(r"[^a-zA-Z0-9\s]", " ", tokens).split()
         cleaned_tokens = stemmer.stemWords(clean_tokens(tokens, stopping_words))
