@@ -26,6 +26,8 @@ function UsingFetch() {
         const handleBoxClick = (id, title) => {
 
           setExpanded(!expanded);
+
+          
           
         };
       
