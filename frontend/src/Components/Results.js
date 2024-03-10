@@ -46,6 +46,23 @@ function UsingFetch() {
     let query = state["searchQuery"];
     const url = `http://localhost:33311${query}`;
     
+    var testObject = '{'
+      +'{'
+        +'"id": "12345",' 
+        +'"title": "test title 1",'
+        +'"value": "test value 1"'
+      +'},{'
+        +'"id": "54321",' 
+        +'"title": "test title 2",'
+        +'"value": "test value 2"'
+      +'},{'
+        +'"id": "67890",' 
+        +'"title": "test title 3",'
+        +'"value": "test value 3"'
+      +'}'
+      +'}'
+
+
 
     useEffect(() => {
       const fetchData = async () => {
