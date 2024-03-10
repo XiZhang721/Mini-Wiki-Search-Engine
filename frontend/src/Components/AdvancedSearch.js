@@ -27,9 +27,27 @@ function AdvancedSearchPage() {
     setSearchTerms(updatedTerms);
   };
 
+
+  const constructQueryString = (searchTerms, booleanType) => {
+    const formattedTerms = searchTerms.map(term => {
+      const { type, value } = term;
+      const proximity = type === 'phrase' ? 0 : term.proximity;
+      return `{\"${value}\", ${type}, ${proximity}}`;
+    });
+  
+    // Join the formatted terms with commas
+    const termsString = formattedTerms.join(',');
+  
+    // Construct the final query string
+    const queryString = `/advanced/search?query={${termsString}}&booltype={${booleanType}}`;
+  
+    return queryString;
+  };
+
   const handleSearch = () => {
-    console.log({ booleanType, searchTerms });
-    navigate('/results', { state: { query: '' } });
+    const query = constructQueryString(searchTerms, booleanType)
+    console.log(query);
+    navigate('/results', { state: { query: '' , advancedQuery: query} });
   };
 
   return (
