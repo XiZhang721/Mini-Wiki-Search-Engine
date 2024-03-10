@@ -48,7 +48,7 @@ function UsingFetch() {
     let { state } = useLocation();
     let searchTerm = state["searchTerm"]
     let query = state["searchQuery"];
-    const url = `http://localhost:33311${query}`;
+    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com${query}`;
     
     const testObject = 
     '[{"id": "12345","title": "test title 1","value": "test value 1"},{"id": "54321","title": "test title 2","value": "test value 2"}]';

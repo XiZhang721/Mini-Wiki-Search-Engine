@@ -62,7 +62,7 @@ function SearchPage() {
     // TODO: send the word to the server, and get the suggerted word
     const words = content.trim().split(" ");
     const lastWord = words[words.length - 1];
-    const url = `http://localhost:33311/next?curr=${lastWord}`;
+    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/next?curr=${lastWord}`;
     const fetchData = async () => {
       try {
         console.log('Sending request to:', url);

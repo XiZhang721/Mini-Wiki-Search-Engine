@@ -1,0 +1,18 @@
+runtime: python311
+entrypoint: gunicorn -b :$PORT -w 2 main:app
+env: standard 
+instance_class: F4 
+service: backend
+
+
+handlers:
+- url: /.*  
+  script: auto  
+
+
+resources:
+  cpu: 2
+  memory_gb: 2
+  disk_size_gb: 10 
+
+# env_variables:
