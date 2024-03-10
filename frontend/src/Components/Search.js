@@ -82,7 +82,8 @@ function SearchPage() {
   };
 
   const handleAddSuggestion = () => {
-    setContent(content + suggestedWord + " ");
+    setContent(content + suggestedWord);
+    setSuggestedWord('')
     fetchNextWordSuggestion()
   };
 

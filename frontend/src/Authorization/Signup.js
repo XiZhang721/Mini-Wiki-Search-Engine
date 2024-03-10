@@ -38,7 +38,7 @@ const Signup = () => {
   className='searchPage'
   style={{ minHeight: "100vh" }}>
   
-  <div className="loginForm" style={{ fontSize: '1.5rem', textAlign: 'center' }}>
+  <div className="loginForm" style={{ fontSize: '1.4rem', textAlign: 'center' }}>
     <h2 className="mb-3">User Sign Up</h2>
 
     {error && <Alert variant="danger">{error}</Alert>}
