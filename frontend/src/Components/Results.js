@@ -43,20 +43,22 @@ function UsingFetch() {
 
     let { state } = useLocation();
     let query = state["searchTerm"];
+    const url = `http://localhost:33311/search?query=${query}`;
     
 
     useEffect(() => {
-        
-        // replace this to the actual server
-        axios.get(`/api/search?query=${query}`)
-          .then(response => {
-            // Update state with the fetched results
-            setResults(response.data);
-          })
-          .catch(error => {
-            console.error('Error fetching results:', error);
-          });
-      }, [state["searchTerm"]]);
+      const fetchData = async () => {
+        try {
+          console.log('Sending request to:', url);
+          const response = await axios.get(url);
+          console.log('Response:', response.data);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+  
+      fetchData();
+    }, [query]);
 
 
 
