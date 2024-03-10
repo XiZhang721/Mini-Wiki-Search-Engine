@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react"
-
-
 import { useLocation } from 'react-router-dom';
 import { Box, Grid, TextField, IconButton, FormControl, NativeSelect, InputLabel } from '@material-ui/core';
 import { SearchOutlined } from '@material-ui/icons';
 import logo from '../logo.png'
 import axios from 'axios';
-const userId = localStorage.getItem('userId');
-const isLoggedIn = userId ? true : false;
+
+
+
 
 function UsingFetch() {
     const [hits, setHits] = useState([]);
@@ -16,21 +15,24 @@ function UsingFetch() {
     const [choice, setChoice] = useState("ranked");
     const [aiAns, setAIAns] = useState("... :)");
     const [results, setResults] = useState([]);
+
+    const userId = localStorage.getItem('userId');
+    const isLoggedIn = userId ? true : false;
    
 
-    const handleChoice = (event) => {
-      setChoice(event.target.value);
-    };
-
-    const Text_Box = ({ title, content }) => {
+    const Text_Box = ({ id, title, content }) => {
         const [expanded, setExpanded] = useState(false);
       
-        const toggleContent = () => {
+        const handleBoxClick = (id, title) => {
+
           setExpanded(!expanded);
+
+          
+          
         };
       
         return (
-          <div className="boxes" onClick={toggleContent}>
+          <div className="boxes" onClick={handleBoxClick}>
             <div className="title">{title}</div>
             {expanded ? (
               <div className="content">{content}</div>
@@ -40,6 +42,8 @@ function UsingFetch() {
           </div>
         );
       };
+
+      
 
     let { state } = useLocation();
     let searchTerm = state["searchTerm"]
@@ -94,40 +98,10 @@ function UsingFetch() {
 
 
         <div className="box-container">
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-
-
-
+          {retrieved_data.map(item => (
+                <Text_Box id={item.id} title={item.title} content={item.value} />
+            ))}
+            
         </div>
 
        
