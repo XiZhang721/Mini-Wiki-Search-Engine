@@ -131,6 +131,8 @@ def search_phrase(query:str):
     # find the union of doc that contains all terms
     docs = []
     # terms = dict()
+    if (len(filtered_terms) == 1):
+        return search_single_word_ONLY_KEY(filtered_terms[0])
     
     
     
@@ -166,11 +168,12 @@ def search_phrase(query:str):
             for j in range(1, len(word_positions)):
                 currMatch = False
                 for k in word_positions[j]:
-                    currMatch = False
                     if(k - i == j ):
                         currMatch = True
                         break
-                    is_match = is_match and currMatch
+                is_match = is_match and currMatch
+                if not is_match:
+                    break
             if(is_match):
                 result.append(doc)
                 break
@@ -188,6 +191,9 @@ def search_proximity(queries:list, n:int):
     # find the union of doc that contains all terms
     docs = []
     # terms = dict()
+    if (len(filtered_terms) == 1):
+        return search_single_word_ONLY_KEY(filtered_terms[0])
+    
   
     for term in filtered_terms:
         # print(term)
@@ -214,7 +220,7 @@ def search_proximity(queries:list, n:int):
     # seach by comparing word_pos
     result = list()
     ### TODO: Rewrite this function to speed up 10x
-    print(docs)
+    # print(docs)
     for doc in docs:
         word_positions = []
         for term in filtered_terms:
@@ -224,17 +230,20 @@ def search_proximity(queries:list, n:int):
         is_match = True
         for i in word_positions[0]:
             is_match = True
+            prev = i
             for j in range(1, len(word_positions)):
                 currMatch = False
                 for k in word_positions[j]:
-                    currMatch = False
-                    if(abs(k - i) <= j * n):
+                    if(abs(k - prev) <=  n):
                         currMatch = True
+                        prev = k
                         break
-                    is_match = is_match and currMatch
+                is_match = is_match and currMatch
+                if not is_match:
+                    break
             if(is_match):
                 result.append(doc)
-            break
+                break
     print("ST =>>> ", time.time() - st)
     return result
 
