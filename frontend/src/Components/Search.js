@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Grid, IconButton, TextField, Button, Chip, Typography, Box, Paper } from '@material-ui/core';
 import { SearchOutlined, AccountCircleOutlined } from '@material-ui/icons';
-import { useNavigate } from 'react-router-dom';
+import { json, useNavigate } from 'react-router-dom';
 import logo from '../logo.png';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
@@ -56,8 +56,6 @@ function SearchPage() {
     }
   };
 
-  const testNext = '{"next":"word"}'
-
   const fetchNextWordSuggestion = () => {
     const words = content.trim().split(" ");
     const lastWord = words[words.length - 1];
@@ -87,10 +85,23 @@ function SearchPage() {
   };
 
   const fetchSuggestions = (input) => {
-    // TODO: send the query to the server, and get the suggerted query
-    const query = content
+    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/suggest?query=${content}`;
+    const fetchData = async () => {
+      try {
+        console.log('Sending request to:', url);
+        const response = await axios.get(url);
+        console.log('Received:', response.data)
+        return response.data;
+      } catch (error) {
+        console.error('Error:', error);
+        return [];
+      }
+    }
+
     if (input.length > 1) {
-      setQuerySuggestions([query + " suggestion 1", query + " suggestion 2", query + " suggestion 3"]);
+      fetchData().then(next => {
+        setQuerySuggestions(next);
+      });
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
