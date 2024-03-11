@@ -27,7 +27,7 @@ function UsingFetch() {
 
           const userName = isLoggedIn? userId : ""
           
-          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id={${id}}&username={${userName}}`
+          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${id}&username=${userName}`
           const updateClick = async () => {
             try {
               console.log('Sending request to:', url);

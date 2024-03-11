@@ -124,6 +124,7 @@ def search_phrase(query:str):
     filtered_terms = []
     for term in terms:
         if(term not in all_stoppings):
+            term = clean_search_word(term)
             filtered_terms.append(term)
     
     # print(filtered_terms)
@@ -156,7 +157,7 @@ def search_phrase(query:str):
     for doc in docs:
         word_positions = []
         for term in filtered_terms:
-            term = clean_search_word(term)
+            # term = clean_search_word(term)
             word_positions.append(convert_get(r.hget(term,str(doc))))
         is_match = True
         # print(word_positions)
