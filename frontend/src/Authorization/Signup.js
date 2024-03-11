@@ -65,7 +65,7 @@ const Signup = () => {
 
       <div className="d-grid gap-2">
         <Button variant="primary" type="Submit" className="custom-login-button">
-          Log In
+          Sign Up
         </Button>
       </div>
     </Form>

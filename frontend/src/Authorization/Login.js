@@ -6,7 +6,7 @@ import GoogleButton from "react-google-button";
 import { useUserAuth } from "../UserAuthContext";
 import { Grid } from '@material-ui/core';
 import { IconButton, TextField, Chip, Typography, Box, Paper } from '@material-ui/core';
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from '@mui/icons-material/Logout'; 
 
 const Login = () => {
   const [email, setEmail] = useState("");
