@@ -39,7 +39,7 @@ function AdvancedSearchPage() {
     const termsString = formattedTerms.join(',');
   
     // Construct the final query string
-    const queryString = `/advanced/search?query={${termsString}}&booltype={${booleanType}}`;
+    const queryString = `/advanced/search?query=[${termsString}]&booltype={${booleanType}}`;
   
     return queryString;
   };

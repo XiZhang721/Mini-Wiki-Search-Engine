@@ -15,7 +15,7 @@ function UsingFetch() {
     const [choice, setChoice] = useState("ranked");
     const [aiAns, setAIAns] = useState("... :)");
     const [results, setResults] = useState([]);
-
+    const [retrievedData, setRetrievedData] = useState([]);
     const userId = localStorage.getItem('userId');
     const isLoggedIn = userId ? true : false;
    
@@ -55,16 +55,14 @@ function UsingFetch() {
 
     //const retrieved_data = JSON.parse(testObject);
     //console.log(retrieved_data);
-    var retrieved_data = []
-
 
     useEffect(() => {
       const fetchData = async () => {
         try {
           console.log('Sending request to:', url);
           const response = await axios.get(url);
-          retrieved_data = response.data
-          console.log('Response:', response.data);
+          setRetrievedData(response.data)
+          console.log('Response:',response.data);
         } catch (error) {
           console.error('Error:', error);
         }
@@ -94,24 +92,14 @@ function UsingFetch() {
                 variant="outlined"
             />
         </form>
-
         <div className="spacer"></div> {/* Add space between form and boxes */}
-
-
-        <div className="box-container">
-          {retrieved_data.map(item => (
+        
+        <div className="box-container" style={{paddingBottom: '20px'}}>
+          {retrievedData.map(item => (
                 <Text_Box id={item.id} title={item.title} content={item.value} />
             ))}
             
         </div>
-
-       
-
-        
-
-        
-
-        
 
       </Grid>
       
