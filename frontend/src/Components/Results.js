@@ -25,9 +25,23 @@ function UsingFetch() {
       
         const handleBoxClick = (id, title) => {
 
-          setExpanded(!expanded);
-
+          const userName = isLoggedIn? userId : ""
           
+          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id={${id}}&username={${userName}}`
+          const updateClick = async () => {
+            try {
+              console.log('Sending request to:', url);
+              const response = await axios.get(url);
+              console.log(response)
+            } catch (error) {
+              console.error('Error:', error);
+            }
+          };
+          
+          if(!expanded){
+            updateClick();
+          }
+          setExpanded(!expanded);
           
         };
       
