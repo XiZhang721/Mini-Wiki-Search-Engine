@@ -185,12 +185,12 @@ function SearchPage() {
             zIndex: 1,
           }}>
           {querySuggestions.map((suggestion, index) => (
-          <Box key={index} onClick={() => handleSuggestionClick(suggestion)} style={{ 
+          <Box key={index} onClick={() => handleSuggestionClick(suggestion.query)} style={{ 
             cursor: 'pointer', 
             padding: 10, 
             textAlign: 'left',
           }}>
-            {suggestion}
+            {suggestion.query}
           </Box>
           ))}
           </Paper>
