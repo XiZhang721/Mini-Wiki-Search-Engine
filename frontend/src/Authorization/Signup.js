@@ -6,6 +6,7 @@ import { useUserAuth } from "../UserAuthContext";
 import { Grid } from '@material-ui/core';
 import { IconButton, TextField, Chip, Typography, Box, Paper } from '@material-ui/core';
 import LogoutIcon from '@mui/icons-material/Logout';
+import axios from 'axios';
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -19,6 +20,8 @@ const Signup = () => {
     setError("");
     try {
       await signUp(email, password);
+      const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/register?user=${email}`;
+      await axios.get(url);
       navigate("/login");
     } catch (err) {
       setError(err.message);
