@@ -45,5 +45,5 @@ print(generate_text_seq(model, tokenizer, seq_length, 'what', 1, 3))
 print(generate_text_seq(model, tokenizer, seq_length, 'how', 1, 3))
 print(generate_text_seq(model, tokenizer, seq_length, 'love', 1, 3))
 
-
+# print(generate_text_seq(model, tokenizer, seq_length, 'harry', 1, 1))
 

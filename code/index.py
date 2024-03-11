@@ -56,7 +56,7 @@ def load_wiki(filename:str):
         for row in csv_reader:
             row_str = ','.join(row)
             parts = row_str.split(',', 2)
-            id, title, content = id, title, content = parts
+            id, title, content = parts
             wikis.append(Wiki(id, title, content))
         print(len(wikis))
 
@@ -64,7 +64,7 @@ def get_tokens(stopping_words:list):
     stemmer = Stemmer.Stemmer('english')
     index_dict = dict()
     for wiki in wikis:
-        tokens = (wiki.title + wiki.content).lower()
+        tokens = (wiki.title + ' ' + wiki.content).lower()
         #print(tokens)
         tokens = re.sub(r"[^a-zA-Z0-9\s]", " ", tokens).split()
         cleaned_tokens = stemmer.stemWords(clean_tokens(tokens, stopping_words))

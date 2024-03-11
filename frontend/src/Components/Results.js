@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react"
-
-
 import { useLocation } from 'react-router-dom';
 import { Box, Grid, TextField, IconButton, FormControl, NativeSelect, InputLabel } from '@material-ui/core';
 import { SearchOutlined } from '@material-ui/icons';
 import logo from '../logo.png'
 import axios from 'axios';
-const userId = localStorage.getItem('userId');
-const isLoggedIn = userId ? true : false;
+
+
+
 
 function UsingFetch() {
     const [hits, setHits] = useState([]);
@@ -16,24 +15,41 @@ function UsingFetch() {
     const [choice, setChoice] = useState("ranked");
     const [aiAns, setAIAns] = useState("... :)");
     const [results, setResults] = useState([]);
+    const [retrievedData, setRetrievedData] = useState([]);
+    const userId = localStorage.getItem('userId');
+    const isLoggedIn = userId ? true : false;
    
 
-    const handleChoice = (event) => {
-      setChoice(event.target.value);
-    };
-
-    const Text_Box = ({ title, content }) => {
+    const Text_Box = ({ id, title, content }) => {
         const [expanded, setExpanded] = useState(false);
       
-        const toggleContent = () => {
+        const handleBoxClick = (id, title) => {
+
+          const userName = isLoggedIn? userId : ""
+          
+          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${id}&username=${userName}`
+          const updateClick = async () => {
+            try {
+              console.log('Sending request to:', url);
+              const response = await axios.get(url);
+              console.log(response)
+            } catch (error) {
+              console.error('Error:', error);
+            }
+          };
+          
+          if(!expanded){
+            updateClick();
+          }
           setExpanded(!expanded);
+          
         };
       
         return (
-          <div className="boxes" onClick={toggleContent}>
+          <div className="boxes" onClick={handleBoxClick}>
             <div className="title">{title}</div>
             {expanded ? (
-              <div className="content">{content}</div>
+              <div className="content" style={{ whiteSpace: 'pre-wrap' }}>{content}</div>
             ) : (
               <div className="content-preview">{content.slice(0, 100)}...</div>
             )}
@@ -41,22 +57,33 @@ function UsingFetch() {
         );
       };
 
+      
+
     let { state } = useLocation();
-    let query = state["searchTerm"];
+    let searchTerm = state["searchTerm"]
+    let query = state["searchQuery"];
+    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com${query}`;
     
+    const testObject = 
+    '[{"id": "12345","title": "test title 1","value": "test value 1"},{"id": "54321","title": "test title 2","value": "test value 2"}]';
+
+    //const retrieved_data = JSON.parse(testObject);
+    //console.log(retrieved_data);
 
     useEffect(() => {
-        
-        // replace this to the actual server
-        axios.get(`/api/search?query=${query}`)
-          .then(response => {
-            // Update state with the fetched results
-            setResults(response.data);
-          })
-          .catch(error => {
-            console.error('Error fetching results:', error);
-          });
-      }, [state["searchTerm"]]);
+      const fetchData = async () => {
+        try {
+          console.log('Sending request to:', url);
+          const response = await axios.get(url);
+          setRetrievedData(response.data)
+          console.log('Response:',response.data);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+  
+      fetchData();
+    }, [query]);
 
 
 
@@ -68,69 +95,25 @@ function UsingFetch() {
         
         {/* remind user current search phrase */}
         <form className='form_2' autoComplete="off">
+            <p style={{ marginBottom: '14px', fontSize: "20px" }}>
+              Current searching query:
+            </p>
             <TextField
                 id="search-bar2"
                 placeholder={"Search"}
-                value={query}
+                value={searchTerm}
                 style={{ width: "100%" }}
-                InputProps={{
-                    startAdornment: (
-                        <IconButton>
-                            <SearchOutlined style={{ marginRight: '8px' }}/>
-                        </IconButton>
-                    ),
-                }}
                 variant="outlined"
             />
         </form>
-
         <div className="spacer"></div> {/* Add space between form and boxes */}
-
-
-        <div className="box-container">
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-            <Text_Box title="Box Title" 
-                content="This is the very long content of the box. It will be truncated, and if the user clicks the box, it will display the entire content. Example's third studio album, Playing in the Shadows, was released in 
-                September 2011 and topped the charts with two number one singles, Changed ufiarfhjileuhflaiweuhflaiweuhflaiewuhflaiewuhflaieuwhflaiuewhfaiuwehfaiweuhfiweuhflewhfliweuhfaiweufhaiweuhf
-                " 
-                />
-
-
-
-
+        
+        <div className="box-container" style={{paddingBottom: '20px'}}>
+          {retrievedData.map(item => (
+                <Text_Box id={item.id} title={item.title} content={item.value}   />
+            ))}
+            
         </div>
-
-       
-
-        
-
-        
-
-        
 
       </Grid>
       
