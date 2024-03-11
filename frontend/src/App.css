@@ -189,6 +189,7 @@
   border: 1px solid #ccc; /* Add a border for a clean look */
   border-radius: 8px; /* Optional: Add border-radius for rounded corners */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle box shadow */
+  background-color: #fff;
 }
 
 .loginForm h2 {

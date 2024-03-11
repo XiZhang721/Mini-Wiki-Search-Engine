@@ -9,12 +9,6 @@ import axios from 'axios';
 
 
 function UsingFetch() {
-    const [hits, setHits] = useState([]);
-    const [content, setContent] = useState('');
-    const [hitCounts, setHitCounts] = useState("5");
-    const [choice, setChoice] = useState("ranked");
-    const [aiAns, setAIAns] = useState("... :)");
-    const [results, setResults] = useState([]);
     const [retrievedData, setRetrievedData] = useState([]);
     const userId = localStorage.getItem('userId');
     const isLoggedIn = userId ? true : false;
@@ -109,9 +103,13 @@ function UsingFetch() {
         <div className="spacer"></div> {/* Add space between form and boxes */}
         
         <div className="box-container" style={{paddingBottom: '20px', maxHeight: '550px', overflowY: 'auto'}}>
-          {retrievedData.map(item => (
-                <Text_Box id={item.id} title={item.title} content={item.value}   />
-            ))}
+          {retrievedData.length > 0 ? (
+            retrievedData.map(item => (
+              <Text_Box id={item.id} title={item.title} content={item.value} />
+              ))
+          ) : (
+            <p style={{ marginBottom: '14px', fontSize: "20px" }}>No result found.</p>
+          )}
             
         </div>
 
