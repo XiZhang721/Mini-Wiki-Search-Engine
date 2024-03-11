@@ -330,10 +330,11 @@ def search(query:str)-> list:
     # print()
     # return [y for _,y in record] == [y for _,y in record_1]
     temp = [y for _,y in record_1]
-    if (len(temp) <= 20):
+    limit = 50
+    if (len(temp) <= limit):
         return temp
     else:
-        return temp[:20] 
+        return temp[:limit] 
 
 def mapping_id(a_list):
     return [((r1.hkeys(i))[0]).decode() for i in a_list], [((r1.hvals(i))[0]).decode() for i in a_list]
