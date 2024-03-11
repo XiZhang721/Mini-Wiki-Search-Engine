@@ -35,7 +35,7 @@ function UsingFetch() {
           <div className="boxes" onClick={handleBoxClick}>
             <div className="title">{title}</div>
             {expanded ? (
-              <div className="content">{content}</div>
+              <div className="content" style={{ whiteSpace: 'pre-wrap' }}>{content}</div>
             ) : (
               <div className="content-preview">{content.slice(0, 100)}...</div>
             )}
@@ -96,7 +96,7 @@ function UsingFetch() {
         
         <div className="box-container" style={{paddingBottom: '20px'}}>
           {retrievedData.map(item => (
-                <Text_Box id={item.id} title={item.title} content={item.value} />
+                <Text_Box id={item.id} title={item.title} content={item.value}   />
             ))}
             
         </div>
