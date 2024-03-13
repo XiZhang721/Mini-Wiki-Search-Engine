@@ -139,7 +139,7 @@ function SearchPage() {
     const fetchData = async () => {
       try {
         const id = isLoggedIn ? userId : ""
-        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/resommnd?username=${id}`
+        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/recommend?username=${id}`
         console.log('Sending request to:', url);
         const response = await axios.get(url);
         setQuickSearchTerms(response.data)
@@ -227,7 +227,7 @@ function SearchPage() {
         {quickSearchTerms.map((term, index) => (
           <Grid item key={index}>
             <Chip
-              label={term}
+              label={term.query}
               onClick={() => handleQuickSearch(term)}
               variant="outlined"
               style = {{background: '#FFF'}}
