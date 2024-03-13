@@ -4,12 +4,73 @@ import search
 import redis
 import search
 import query_completion
+import query_suggestion
 from flask_cors import CORS
 import os
+import firebase_admin
+from firebase_admin import credentials, initialize_app,db
 
 app = Flask(__name__)
 CORS(app)
 # r = redis.Redis(host='localhost', port=6379, db=0)
+cred = credentials.Certificate('key.json')
+default_app = initialize_app(cred, {
+	'databaseURL':'https://ttds-412917-default-rtdb.europe-west1.firebasedatabase.app'})
+ref = db.reference("/")
+
+label_dict = {
+    "0": "Company",
+    "1": "EducationalInstitution",
+    "2": "Artist",
+    "3": "Athlete",
+    "4": "OfficeHolder",
+    "5": "MeanOfTransportation",
+    "6": "Building",
+    "7": "NaturalPlace",
+    "8": "Village",
+    "9": "Animal",
+    "10": "Plant",
+    "11": "Album",
+    "12": "Film",
+    "13": "WrittenWork",
+}
+
+@app.route('/register', methods=['POST','GET'])
+def test():
+    username = request.args.get('username')
+    username_ref = ref.child('user')
+    username_ref.child(username).set({
+    "Company": 0,
+    "EducationalInstitution": 0,
+    "Artist": 0,
+    "Athlete": 0,
+    "OfficeHolder": 0,
+    "MeanOfTransportation": 0,
+    "Building": 0,
+    "NaturalPlace": 0,
+    "Village": 0,
+    "Animal": 0,
+    "Plant": 0,
+    "Album": 0,
+    "Film": 0,
+    "WrittenWork": 0,
+})
+    return jsonify({"status":"registered"})
+
+# @app.route('/get', methods=['POST','GET'])
+def get_user_info(user_name:str):
+    # username = request.args.get('username')
+    username_ref = ref.child('user')
+    user_info = username_ref.child(user_name)
+    return user_info.get()
+
+def update_user_info(user_name:str, category:str):
+    # username = request.args.get('username')
+    username_ref = ref.child('user')
+    user_info = username_ref.child(user_name)
+    # user_info.update(updated_val)
+    user_info.update({category: user_info.get()[category]+1})
+
 
 @app.route('/search', methods=['POST','GET'])
 # simple search, fast
@@ -17,14 +78,14 @@ def get_data():
     query_param = request.args.get('query')
     user_param = request.args.get('user')
     if not query_param:
-        return jsonify({'error': 'No value'}), 400
+        return jsonify({})
     try:
         query_data = query_param
         if (len(query_data.split(" ")) > 1):
             if (query_data.split(" ")[1] != 'OR' or 
                 query_data.split(" ")[1] != 'AND'):
                 # query_data = "\"" + str(query_data) + "\"" 
-                query_data = " AND ".join(query_data.split(" "))
+                query_data = " OR ".join(query_data.split(" "))
             
         search_result = search.search(str(query_data))
         
@@ -33,7 +94,7 @@ def get_data():
         # print(search_result)
         return jsonify(packed)
     except ValueError as e:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({})
 
 # TODO this is for search_proximity/phrase
 @app.route('/advanced/search', methods=['POST','GET'])
@@ -66,8 +127,8 @@ def get_adv_data():
 
 @app.route('/next', methods=['POST','GET'])
 def get_next_word():
-    query_param = request.args.get('curr')
-    pred_val = query_completion.get_content_text_seq(query_param,1)
+    curr_param = request.args.get('curr')
+    pred_val = query_completion.get_content_text_seq(curr_param,1)
     return jsonify({'next':pred_val[0]})
 
 
@@ -83,6 +144,14 @@ def update_user_info():
     
     except ValueError as e:
         return jsonify({})
+    
+@app.route('/suggest', methods=['POST','GET'])
+def provide_suggest_query():
+    query_param = request.args.get('query')
+    temp_list = query_suggestion.suggest_queries(query=query_param)
+    return jsonify([{'query':temp_list[0]},
+                    {'query':temp_list[1]},
+                    {'query':temp_list[2]}])
     
 
 if __name__ == '__main__':
