@@ -77,7 +77,7 @@ function UsingFetch() {
       };
   
       fetchData();
-    }, [query]);
+    });
 
 
 

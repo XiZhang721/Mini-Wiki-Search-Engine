@@ -13,7 +13,7 @@ function SearchPage() {
   const isLoggedIn = userId ? true : false;
 
   // Placeholder data for quick searches. Adjust as needed or fetch from server.
-  const quickSearchTerms = ["Quick Search 1", "Quick Search 2", "Quick Search 3"].slice(0, 6); // Example with fewer than 6
+  const [quickSearchTerms, setQuickSearchTerms] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
@@ -133,6 +133,24 @@ function SearchPage() {
     }, 200);
     setBlurTimeoutId(id);
   };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const id = isLoggedIn ? userId : ""
+        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/resommnd?username=${id}`
+        console.log('Sending request to:', url);
+        const response = await axios.get(url);
+        setQuickSearchTerms(response.data)
+        console.log('Response:',response.data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchData();
+  }, [query]);
 
   return (
     <Grid

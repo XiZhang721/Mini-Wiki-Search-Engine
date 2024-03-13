@@ -35,12 +35,8 @@ function AdvancedSearchPage() {
       return `[\"${value}\", ${type}, ${proximity}]`;
     });
   
-    // Join the formatted terms with commas
     const termsString = formattedTerms.join(',');
-  
-    // Construct the final query string
     const queryString = `/advanced/search?query=[${termsString}]&booltype=${booleanType}`;
-  
     return queryString;
   };
 
@@ -124,10 +120,8 @@ function AdvancedSearchPage() {
 
       <Box style={{ backgroundColor: '#333', color: 'white', padding: 20, width: '30%'}}>
         <Typography variant="body1">
-          {/* This is a placeholder text. Replace or update this text as necessary. */}
           Information or instructions related to advanced search can go here.
         </Typography>
-        {/* Additional content or instructions for advanced search can be added here. */}
       </Box>
     </Box>
   );
