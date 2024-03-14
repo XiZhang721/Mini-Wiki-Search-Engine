@@ -26,25 +26,18 @@ r2 = redis.StrictRedis(connection_pool=pool2)
 r3 = redis.StrictRedis(connection_pool=pool3)
 
 def search_category(str_id):
-    return (r2.hkeys(str_id)).decode()
+    return (r3.hkeys(str_id))[0].decode()
 
 def given_random_value(category:str):
-    batch_size = 1000
-    sample_size = 3  
+    sample_size = 10  
     random_samples = []
-    while len(random_samples) < sample_size:
-        cursor = random.randint(batch_size)
-        _, data = r3.hscan(category, cursor=str(cursor), count=100)
-    
-        if data:
-            key, value = random.choice(list(data.items()))
-            random_samples.append(value)
-        
-        if len(random_samples) >= sample_size:
-            break
-    return random_samples
-    
-    
+    cursor = random.randint(0,1000000)
+    # random.randint(0,10)
+    _, data = r2.hscan(category, cursor=str(cursor), count=sample_size)
+        # print(data)
+    random_samples = [i.decode() for i in data.keys()]
+    return random_samples[:3]
+
 
 def convert_getall(getall_val):
     return {key.decode(): [item for item in json.loads(value.decode())] for key, value in getall_val.items()}
@@ -408,9 +401,12 @@ def package_val(a,b,c):
 #         return jsonify({'error': 'Invalid JSON'}), 400
 
 # if __name__ == "__main__":
-    # start_time = time.time()
+#     start_time = time.time()
     # all_stoppings = load_stoppings("data/stoppings.txt")
     # search_index, all_index = load_index('data/index.txt')
+    # print(given_random_value("Company"))
+    # print(search_category('668033'))
+    
     # all_index.sort()
     # print("Loading Finished, Time Used:" + str((time.time() - start_time)))
     # print(len(all_index))

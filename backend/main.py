@@ -138,14 +138,14 @@ def get_next_word():
 
 
 @app.route('/update', methods=['POST','GET'])
-def update_user_info():
+def update_user():
     id_param = request.args.get('id')
     username_param = request.args.get('username')
     print(id_param, username_param)
     if not id_param:
         return jsonify({})
     try:
-        update_user_info(username_param, id_param)
+        update_user_info(username_param, search.search_category(id_param))
         return jsonify({'value':'received'})
     
     except ValueError as e:
