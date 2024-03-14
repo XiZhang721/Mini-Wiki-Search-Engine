@@ -10,16 +10,34 @@ from flask import Flask, request, jsonify
 import redis
 import json
 import time
-
+import random
 
 # app = Flask(__name__)
 # r = redis.Redis(host='localhost', port=6379, db=0)
 
 pool0 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=0, password='114514')
 pool1 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=1, password='114514')
+pool2 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=2, password='114514')
+pool3 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=3, password='114514')
 
 r = redis.StrictRedis(connection_pool=pool0)
 r1 = redis.StrictRedis(connection_pool=pool1)
+r2 = redis.StrictRedis(connection_pool=pool2)
+r3 = redis.StrictRedis(connection_pool=pool3)
+
+def search_category(str_id):
+    return (r3.hkeys(str_id))[0].decode()
+
+def given_random_value(category:str):
+    sample_size = 10  
+    random_samples = []
+    cursor = random.randint(0,1000000)
+    # random.randint(0,10)
+    _, data = r2.hscan(category, cursor=str(cursor), count=sample_size)
+        # print(data)
+    random_samples = [i.decode() for i in data.keys()]
+    return random_samples[:3]
+
 
 def convert_getall(getall_val):
     return {key.decode(): [item for item in json.loads(value.decode())] for key, value in getall_val.items()}
@@ -244,7 +262,7 @@ def search_proximity(queries:list, n:int):
             if(is_match):
                 result.append(doc)
                 break
-    print("ST =>>> ", time.time() - st)
+    # print("ST =>>> ", time.time() - st)
     return result
 
 # tested and found not working faster, no longer using
@@ -267,6 +285,7 @@ def search_query(query:str) -> list:
         result1 = search_query(parts[0].strip())
         result2 = search_query(parts[1].strip())
         result = or_expression(result1, result2)
+        # print(result)
         # The one using multi-threading:
         # results = search_two_parts(search_index,parts[0].strip(),parts[1].strip())
         # result = or_expression(results[0], results[1])
@@ -277,6 +296,7 @@ def search_query(query:str) -> list:
         result1 = search_query(parts[0].strip())
         result2 = search_query(parts[1].strip())
         result = and_expression(result1,result2) 
+        # print(result)
         # The one using multi-threading:
         # results = search_two_parts(search_index,parts[0].strip(),parts[1].strip())
         # result = and_expression(results[0], results[1])
@@ -330,8 +350,14 @@ def search(query:str)-> list:
         
     # st = time.time()
     record_1 = [(0,i) for i in result]
+    # print(len(record_1))
+    # print(clean_q)
     for j in clean_q:
-        record_1 =[(x+len(i), y) for (x,y),i in zip(record_1,r.hmget(j,result))]
+        record_1 =[(x+len(i), y) if i != None else (x,y) for (x,y),i in zip(record_1,r.hmget(j,result))]
+        # for (x,y),i in zip(record_1,r.hmget(j,result)):
+        #     if(i != None):
+        #         print((x,y), i)
+        #         break
     # print('seccc=>>>> ', time.time() -st)
     record_1.sort(reverse=True)    
     
@@ -374,10 +400,13 @@ def package_val(a,b,c):
 #     except ValueError as e:
 #         return jsonify({'error': 'Invalid JSON'}), 400
 
-if __name__ == "__main__":
-    start_time = time.time()
+# if __name__ == "__main__":
+#     start_time = time.time()
     # all_stoppings = load_stoppings("data/stoppings.txt")
     # search_index, all_index = load_index('data/index.txt')
+    # print(given_random_value("Company"))
+    # print(search_category('668033'))
+    
     # all_index.sort()
     # print("Loading Finished, Time Used:" + str((time.time() - start_time)))
     # print(len(all_index))
@@ -400,9 +429,9 @@ if __name__ == "__main__":
     # query_phrase  = "Harry AND Potter"
     # query_phrase = "\"literary work was undertaken\""
     # query_phrase = "\"harry potter\""
-    query_prox = "#2(Henry, Hallam)"
+    # query_prox = "#2(Henry, Hallam)"
     # search_result = r.hkeys("work")
-    search_result = search_query(query_prox)
+    # search_result = search_query(query_prox)
     # search_single_word_ONLY_KEY('hallam')
     # search_single_word_ONLY_KEY('henry')
     # r.hgetall('henry')
@@ -411,8 +440,8 @@ if __name__ == "__main__":
     # search_result = search_single_word_ONLY_KEY("Work")
     # search_single_word("harry")
     # r.hgetall("harry")
-    print("Searching Finished, Time Used:" + str((time.time() - start_time)))
-    print(search_result)
+    # print("Searching Finished, Time Used:" + str((time.time() - start_time)))
+    # print(search_result)
     # start_time = time.time()
     # search_single_word(dict(),"xi")
     # print("Searching Finished, Time Used:" + str((time.time() - start_time)))
