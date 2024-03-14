@@ -150,7 +150,7 @@ function SearchPage() {
     };
 
     fetchData();
-  }, [query]);
+  },[]);
 
   return (
     <Grid
