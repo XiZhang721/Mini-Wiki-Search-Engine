@@ -32,11 +32,12 @@ function AdvancedSearchPage() {
     const formattedTerms = searchTerms.map(term => {
       const { type, value } = term;
       const proximity = type === 'phrase' ? 0 : term.proximity;
-      return `[\"${value}\", ${type}, ${proximity}]`;
+      const filteredValue =value.replace(/[^a-zA-Z0-9 ]/g, "");
+      return `${filteredValue}-${type}-${proximity}`;
     });
   
-    const termsString = formattedTerms.join(',');
-    const queryString = `/advanced/search?query=[${termsString}]&booltype=${booleanType}`;
+    const termsString = encodeURIComponent(formattedTerms.join('@'));
+    const queryString = `/advanced/search?query=${termsString}&booltype=${booleanType}`;
     return queryString;
   };
 

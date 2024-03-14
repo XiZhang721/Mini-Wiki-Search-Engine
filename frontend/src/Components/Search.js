@@ -17,7 +17,8 @@ function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
-    const query = `/search?query=${content}`
+    const filteredQuery = content.replace(/[^a-zA-Z0-9 ]/g, "");
+    const query = `/search?query=${filteredQuery}`
     navigate('./results', { state: { searchTerm: content, searchQuery: query } });
   };
 
@@ -26,7 +27,8 @@ function SearchPage() {
   };
 
   const handleQuickSearch = (term) => {
-    const query = `/search?query=${term}`
+    const filteredQuery = term.replace(/[^a-zA-Z0-9 ]/g, "");
+    const query = `/search?query=${filteredQuery}`;
     navigate('./results', { state: { searchTerm: term, searchQuery: query } });
   };
 
@@ -138,12 +140,11 @@ function SearchPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const email = userId.replace(/\./g, '-');
-        const id = isLoggedIn ? email : "null"
-        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/recommend?username=${encodeURIComponent(id)}`
+        const id = isLoggedIn ? userId.replace(/\./g, '-') : "server";
+        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/recommend?username=${encodeURIComponent(id)}`;
         console.log('Sending request to:', url);
         const response = await axios.get(url);
-        setQuickSearchTerms(response.data)
+        setQuickSearchTerms(response.data);
         console.log('Response:',response.data);
       } catch (error) {
         console.error('Error:', error);
@@ -229,7 +230,7 @@ function SearchPage() {
           <Grid item key={index}>
             <Chip
               label={term.query}
-              onClick={() => handleQuickSearch(term)}
+              onClick={() => handleQuickSearch(term.query)}
               variant="outlined"
               style = {{background: '#FFF'}}
             />

@@ -16,13 +16,11 @@ function UsingFetch() {
 
     const Text_Box = ({ id, title, content }) => {
         const [expanded, setExpanded] = useState(false);
-      
+        const wikiId = id;
         const handleBoxClick = (id, title) => {
-
-          const email = userId.replace(/\./g, '-');
-          const id = isLoggedIn ? email : "null"
+          const usrId = isLoggedIn ? userId.replace(/\./g, '-') : "server"
           
-          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${id}&username=${encodeURIComponent(id)}`
+          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${wikiId}&username=${encodeURIComponent(usrId)}`
           const updateClick = async () => {
             try {
               console.log('Sending request to:', url);

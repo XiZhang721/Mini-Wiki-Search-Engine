@@ -25,7 +25,7 @@ const Signup = () => {
         const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/register?username=${encodeURIComponent(sanitizedEmail)}`;
         console.log('Sending request to:', url);
         const response = await axios.get(url);
-        console.log(response)
+        console.log(response);
       } catch (regError) {
         // Handle registration errors here
         console.error('Registration error:', regError);
