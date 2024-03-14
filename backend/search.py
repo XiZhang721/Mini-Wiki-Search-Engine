@@ -25,6 +25,8 @@ r1 = redis.StrictRedis(connection_pool=pool1)
 r2 = redis.StrictRedis(connection_pool=pool2)
 r3 = redis.StrictRedis(connection_pool=pool3)
 
+clean_regex = re.compile(r"[^a-zA-Z0-9\s]")
+
 def return_title_f(a_list):
     return [ (r1.hkeys(i))[0].decode() for i in a_list]
 
@@ -85,24 +87,22 @@ class term:
         self.count += 1
         self.appearances[doc_index] = appearance(doc_index,word_pos)
 
-all_stoppings = []
-wikis = []
-
 # load stopping words
 def load_stoppings(filename:str):
-    stoppings = []
     with open(filename, 'r', encoding='UTF-8-sig') as file:
         content = file.read()
-        stoppings = re.sub(r"[^a-zA-Z0-9\s]", " ", content.lower())
-        stoppings = content.split()
+        stoppings = clean_regex.sub(" ", content.lower())
+        stoppings = set(content.split())
     file.close()
     return stoppings
 
+all_stoppings = load_stoppings("stoppings.txt")
+wikis = []
 
 # clean the search word
 def clean_search_word(word:str):
     stemmer = Stemmer.Stemmer('english')
-    return stemmer.stemWord(re.sub(r"[^a-zA-Z0-9\s]", " ", word.lower())) 
+    return stemmer.stemWord(clean_regex.sub(" ", word.lower())) 
 
 def or_expression(result1:list, result2:list):
     result = list(set(result1) | set(result2))
@@ -142,13 +142,14 @@ def search_single_word_ONLY_KEY(search_word: str):
 # phrase search
 def search_phrase(query:str):
     # start_time = time.time()
-    query = re.sub(r"[^a-zA-Z0-9\s]", " ", query.lower())
+    query = clean_regex.sub(" ", query.lower())
     terms = query.split()
-    filtered_terms = []
-    for term in terms:
-        if(term not in all_stoppings):
-            term = clean_search_word(term)
-            filtered_terms.append(term)
+    filtered_terms = [clean_search_word(term) for term in terms if term not in all_stoppings]
+    # filtered_terms = []
+    # for term in terms:
+    #     if(term not in all_stoppings):
+    #         term = clean_search_word(term)
+    #         filtered_terms.append(term)
     
     # print(filtered_terms)
     # find the union of doc that contains all terms
@@ -180,10 +181,15 @@ def search_phrase(query:str):
     # get the result by comparing word positions
     result = list()
     for doc in docs:
-        word_positions = []
+        pipeline = r.pipeline()
         for term in filtered_terms:
-            # term = clean_search_word(term)
-            word_positions.append(convert_get(r.hget(term,str(doc))))
+            pipeline.hget(term, doc)
+        aa = pipeline.execute()
+        word_positions = [convert_get(ab) for ab in aa]
+        # word_positions = [convert_get(r.hget(term, doc)) for term in filtered_terms]
+        # for term in filtered_terms:
+        #     # term = clean_search_word(term)
+        #     word_positions.append(convert_get(r.hget(term,str(doc))))
         is_match = True
         # print(word_positions)
         for i in word_positions[0]:
@@ -206,13 +212,13 @@ def search_proximity(queries:list, n:int):
     terms = list()
     # print(queries)
     for query in queries:
-        terms.append(re.sub(r"[^a-zA-Z0-9\s]", "", query.lower()))
-    filtered_terms = []
-    # print(terms
-    for term in terms:
-        if(term not in all_stoppings):
-            filtered_terms.append(term)
-    
+        terms.append(clean_regex.sub("", query.lower()))
+    # filtered_terms = []
+    # # print(terms
+    # for term in terms:
+    #     if(term not in all_stoppings):
+    #         filtered_terms.append(term)
+    filtered_terms = [clean_search_word(term) for term in terms if term not in all_stoppings]
     # find the union of doc that contains all terms
     docs = []
     # terms = dict()
@@ -240,17 +246,21 @@ def search_proximity(queries:list, n:int):
     #             filtered_appearance[a] = term_appearance[a]
     #     searched_terms[term] = filtered_appearance
 
-    st = time.time()
+    # st = time.time()
     # seach by comparing word_pos
     result = list()
     ### TODO: Rewrite this function to speed up 10x
     # print(docs)
     for doc in docs:
-        word_positions = []
+        pipeline = r.pipeline()
         for term in filtered_terms:
-            term = clean_search_word(term)
-            # print(r.hget('henry',214730))
-            word_positions.append(convert_get(r.hget(term,doc)))
+            pipeline.hget(term, doc)
+        aa = pipeline.execute()
+        word_positions = [convert_get(ab) for ab in aa]
+        # for term in filtered_terms:
+        #     term = clean_search_word(term)
+        #     # print(r.hget('henry',214730))
+        #     word_positions.append(convert_get(r.hget(term,doc)))
         is_match = True
         for i in word_positions[0]:
             is_match = True
@@ -371,11 +381,12 @@ def search(query:str)-> list:
     # print()
     # return [y for _,y in record] == [y for _,y in record_1]
     temp = [y for _,y in record_1]
-    limit = 50
-    if (len(temp) <= limit):
-        return temp
-    else:
-        return temp[:limit] 
+    # limit = 50
+    # if (len(temp) <= limit):
+    #     return temp
+    # else:
+    #     return temp[:limit] 
+    return temp
 
 def mapping_id(a_list):
     return [((r1.hkeys(i))[0]).decode() for i in a_list], [((r1.hvals(i))[0]).decode() for i in a_list]
