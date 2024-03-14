@@ -12,6 +12,7 @@ function UsingFetch() {
     const [retrievedData, setRetrievedData] = useState([]);
     const userId = localStorage.getItem('userId');
     const isLoggedIn = userId ? true : false;
+    const [isLoading, setIsLoading] = useState(false);
    
 
     const Text_Box = ({ id, title, content }) => {
@@ -65,6 +66,8 @@ function UsingFetch() {
 
     useEffect(() => {
       const fetchData = async () => {
+        setIsLoading(true); // Set loading to true before fetching data
+        
         try {
           console.log('Sending request to:', url);
           const response = await axios.get(url);
@@ -72,6 +75,8 @@ function UsingFetch() {
           console.log('Response:',response.data);
         } catch (error) {
           console.error('Error:', error);
+        }finally {
+          setIsLoading(false); // Ensure loading is set to false after fetching
         }
       };
   
@@ -102,13 +107,15 @@ function UsingFetch() {
         <div className="spacer"></div> {/* Add space between form and boxes */}
         
         <div className="box-container" style={{paddingBottom: '20px', maxHeight: '550px', overflowY: 'auto'}}>
-          {retrievedData.length > 0 ? (
-            retrievedData.map(item => (
-              <Text_Box id={item.id} title={item.title} content={item.value} />
-              ))
-          ) : (
-            <p style={{ marginBottom: '14px', fontSize: "20px" }}>No result found.</p>
-          )}
+          {isLoading ? (
+            <p style={{ marginBottom: '14px', fontSize: "20px" }}>Loading...</p>
+            ) :retrievedData.length > 0 ? (
+              retrievedData.map(item => (
+                <Text_Box id={item.id} title={item.title} content={item.value} />
+                ))
+            ) : (
+              <p style={{ marginBottom: '14px', fontSize: "20px" }}>No result found.</p>
+            )}
             
         </div>
 
