@@ -76,7 +76,7 @@ def update_user_info(user_name:str, category:str):
 # simple search, fast
 def get_data():
     query_param = request.args.get('query')
-    user_param = request.args.get('user')
+    # user_param = request.args.get('user')
     if not query_param:
         return jsonify({})
     try:
@@ -85,9 +85,14 @@ def get_data():
             if (query_data.split(" ")[1] != 'OR' or 
                 query_data.split(" ")[1] != 'AND'):
                 # query_data = "\"" + str(query_data) + "\"" 
-                query_data = " OR ".join(query_data.split(" "))
+                query_data = " AND ".join(query_data.split(" "))
             
-        search_result = search.search(str(query_data))
+            search_result = search.search(str(query_data))
+            if (search_result == []):
+                query_data = " OR ".join(query_data.split(" "))
+                search_result = search.search(str(query_data))
+        else:
+            search_result = search.search(str(query_data))
         
         keys,vals = search.mapping_id(search_result)
         packed = search.package_val(search_result,keys,vals)
@@ -140,6 +145,7 @@ def update_user_info():
     if not id_param:
         return jsonify({})
     try:
+        update_user_info(username_param, id_param)
         return jsonify({'value':'received'})
     
     except ValueError as e:
@@ -152,6 +158,18 @@ def provide_suggest_query():
     return jsonify([{'query':temp_list[0]},
                     {'query':temp_list[1]},
                     {'query':temp_list[2]}])
+    
+
+@app.route('/recommend', methods=['POST','GET'])
+def give_recommend():
+    username_param = request.args.get('username')
+    usr_info = get_user_info(username_param)
+    result_max = max(usr_info, key=usr_info.get)
+    result = search.given_random_value(result_max)
+    return jsonify([{'query':result[0]},
+                    {'query':result[1]},
+                    {'query':result[2]}]) 
+    
     
 
 if __name__ == '__main__':
