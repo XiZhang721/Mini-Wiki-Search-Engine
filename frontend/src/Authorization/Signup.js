@@ -20,8 +20,19 @@ const Signup = () => {
     setError("");
     try {
       await signUp(email, password);
-      const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/register?user=${email}`;
-      await axios.get(url);
+      try {
+        const sanitizedEmail = email.replace(/\./g, '-');
+        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/register?username=${encodeURIComponent(sanitizedEmail)}`;
+        console.log('Sending request to:', url);
+        const response = await axios.get(url);
+        console.log(response)
+      } catch (regError) {
+        // Handle registration errors here
+        console.error('Registration error:', regError);
+        setError(regError.response.data.message); // Assuming the error message is in the response's data
+        // Don't navigate to "/login" if registration failed
+        return;
+      }
       navigate("/login");
     } catch (err) {
       setError(err.message);

@@ -138,8 +138,9 @@ function SearchPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const id = isLoggedIn ? userId : ""
-        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/recommend?username=${id}`
+        const email = userId.replace(/\./g, '-');
+        const id = isLoggedIn ? email : "null"
+        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/recommend?username=${encodeURIComponent(id)}`
         console.log('Sending request to:', url);
         const response = await axios.get(url);
         setQuickSearchTerms(response.data)

@@ -19,9 +19,10 @@ function UsingFetch() {
       
         const handleBoxClick = (id, title) => {
 
-          const userName = isLoggedIn? userId : ""
+          const email = userId.replace(/\./g, '-');
+          const id = isLoggedIn ? email : "null"
           
-          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${id}&username=${userName}`
+          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${id}&username=${encodeURIComponent(id)}`
           const updateClick = async () => {
             try {
               console.log('Sending request to:', url);
