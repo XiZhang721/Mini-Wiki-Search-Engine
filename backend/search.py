@@ -25,6 +25,9 @@ r1 = redis.StrictRedis(connection_pool=pool1)
 r2 = redis.StrictRedis(connection_pool=pool2)
 r3 = redis.StrictRedis(connection_pool=pool3)
 
+def return_title_f(a_list):
+    return [ (r1.hkeys(i))[0].decode() for i in a_list]
+
 def search_category(str_id):
     return (r3.hkeys(str_id))[0].decode()
 
@@ -55,6 +58,8 @@ def convert_only_key(getall_key):
     return a_list
 
 def convert_get(get_val):
+    if (get_val == None or get_val==[]):
+        return []
     return [value for value in json.loads(get_val.decode())]
 
 
@@ -199,9 +204,11 @@ def search_phrase(query:str):
 
 def search_proximity(queries:list, n:int):
     terms = list()
+    # print(queries)
     for query in queries:
         terms.append(re.sub(r"[^a-zA-Z0-9\s]", "", query.lower()))
     filtered_terms = []
+    # print(terms
     for term in terms:
         if(term not in all_stoppings):
             filtered_terms.append(term)
@@ -223,7 +230,6 @@ def search_proximity(queries:list, n:int):
         else:
             docs = and_expression(docs, single_result)
         # terms[term] = single_result
-            
     # # remove the appearance that are not in docs for all terms
     # searched_terms = dict()
     # for term in filtered_terms:

@@ -109,20 +109,25 @@ def get_adv_data():
     if not query_param:
         return jsonify({})
     try:
-        temp = list(query_param)
-        temp_len = len(temp)
+        query_param = query_param.split("@")
+        # temp = list(query_param)
+        # print(temp)
+        # temp_len = len(temp)
         record = []
-        for key_a, type_a, val_a in temp_len:
-            if (type_a == 'Phrase'):
+        for i in query_param:
+            key_a, type_a, val_a = i.split('-')
+            val_a = int(val_a)
+            if (type_a == 'phrase'):
+                key_a = str(key_a)
                 record.append(set(search.search_phrase(key_a)))
             else:
+                key_a = str(key_a).split(' ')
+                # print(search.search_proximity(key_a,val_a))
                 record.append(set(search.search_proximity(key_a,val_a)))
-        
         if (bool_param == 'AND'):
             search_result = list(set.intersection(*record))
         else:
             search_result = list(set.union(*record))
-        
         keys,vals = search.mapping_id(search_result)
         packed = search.package_val(search_result,keys,vals)
         return jsonify(packed)    
@@ -141,13 +146,13 @@ def get_next_word():
 def update_user():
     id_param = request.args.get('id')
     username_param = request.args.get('username')
-    print(id_param, username_param)
     if not id_param:
         return jsonify({})
     try:
-        update_user_info(username_param, search.search_category(id_param))
+        if (username_param != "" or username_param != None or username_param !='null'):
+            update_user_info(username_param, search.search_category(id_param))
+        update_user_info("server", search.search_category(id_param))
         return jsonify({'value':'received'})
-    
     except ValueError as e:
         return jsonify({})
     
@@ -163,9 +168,21 @@ def provide_suggest_query():
 @app.route('/recommend', methods=['POST','GET'])
 def give_recommend():
     username_param = request.args.get('username')
+    print(username_param)
+    if (username_param == "" or 
+        username_param == None or 
+        username_param=='null'):
+        # result = search.given_random_value("Company")
+        # return jsonify([{'query':result[0]},
+        #             {'query':result[1]},
+        #             {'query':result[2]}]) 
+        username_param = 'server'
+   
     usr_info = get_user_info(username_param)
+    # print(usr_info)
     result_max = max(usr_info, key=usr_info.get)
     result = search.given_random_value(result_max)
+    result = search.return_title_f(result)
     return jsonify([{'query':result[0]},
                     {'query':result[1]},
                     {'query':result[2]}]) 
@@ -174,7 +191,7 @@ def give_recommend():
 
 if __name__ == '__main__':
     # port = int(os.environ.get('PORT'))
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',debug = True)
 
 
     
