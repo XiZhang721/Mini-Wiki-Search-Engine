@@ -61,7 +61,7 @@ function SearchPage() {
   const fetchNextWordSuggestion = () => {
     const words = content.trim().split(" ");
     const lastWord = words[words.length - 1];
-    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/next?curr=${lastWord}`;
+    const url = `http://34.163.26.53:5000/next?curr=${lastWord}`;
     const fetchData = async () => {
       try {
         console.log('Sending request to:', url);
@@ -87,7 +87,7 @@ function SearchPage() {
   };
 
   const fetchSuggestions = (input) => {
-    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/suggest?query=${content}`;
+    const url = `http://34.163.26.53:5000/suggest?query=${content}`;
     const fetchData = async () => {
       try {
         console.log('Sending request to:', url);
@@ -141,7 +141,7 @@ function SearchPage() {
     const fetchData = async () => {
       try {
         const id = isLoggedIn ? userId.replace(/\./g, '-') : "server";
-        const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/recommend?username=${encodeURIComponent(id)}`;
+        const url = `http://34.163.26.53:5000/recommend?username=${encodeURIComponent(id)}`;
         console.log('Sending request to:', url);
         const response = await axios.get(url);
         setQuickSearchTerms(response.data);

@@ -21,7 +21,7 @@ function UsingFetch() {
         const handleBoxClick = (id, title) => {
           const usrId = isLoggedIn ? userId.replace(/\./g, '-') : "server"
           
-          const url = `https://backend-dot-ttds-412917.nw.r.appspot.com/update?id=${wikiId}&username=${encodeURIComponent(usrId)}`
+          const url = `http://34.163.26.53:5000/update?id=${wikiId}&username=${encodeURIComponent(usrId)}`
           const updateClick = async () => {
             try {
               console.log('Sending request to:', url);
@@ -56,7 +56,7 @@ function UsingFetch() {
     let { state } = useLocation();
     let searchTerm = state["searchTerm"]
     let query = state["searchQuery"];
-    const url = `https://backend-dot-ttds-412917.nw.r.appspot.com${query}`;
+    const url = `http://34.163.26.53:5000${query}`;
     
     const testObject = 
     '[{"id": "12345","title": "test title 1","value": "test value 1"},{"id": "54321","title": "test title 2","value": "test value 2"}]';
