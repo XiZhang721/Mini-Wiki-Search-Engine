@@ -120,9 +120,30 @@ function AdvancedSearchPage() {
       </Box>
 
       <Box style={{ backgroundColor: '#333', color: 'white', padding: 20, width: '30%'}}>
-        <Typography variant="body1">
-          Information or instructions related to advanced search can go here.
+        <Typography variant="body1" style={{ marginBottom: '16px' }}>
+          SEARCH TIPS for Advanced Search:
         </Typography>
+        <Typography variant="body1" style={{ marginBottom: '16px' }}>
+
+          You can have up to five search boxes by clicking the button "ADD SEARCH TERM".
+        </Typography>
+        <Typography variant="body1" style={{ marginBottom: '16px' }}>
+        
+
+          You can choose how to connect these queries, either by AND or OR. 
+        </Typography>
+        <Typography variant="body1" style={{ marginBottom: '16px' }}>
+          
+          Then you can choose the search types for each box, such as phrase search and proximity search. 
+        </Typography>
+        <Typography variant="body1" style={{ marginBottom: '16px' }}>
+
+          For proximity search, you can set the distance number for proximity between 1 and 10. 
+
+
+        </Typography>
+
+
       </Box>
     </Box>
   );
