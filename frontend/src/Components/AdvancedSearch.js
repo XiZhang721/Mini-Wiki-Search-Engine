@@ -32,7 +32,7 @@ function AdvancedSearchPage() {
     const formattedTerms = searchTerms.map(term => {
       const { type, value } = term;
       const proximity = type === 'phrase' ? 0 : term.proximity;
-      const filteredValue =value.replace(/[^a-zA-Z0-9 ]/g, "");
+      const filteredValue =value.replace(/-/g, " ").replace(/[^a-zA-Z0-9 ]/g, "");
       return `${filteredValue}-${type}-${proximity}`;
     });
   

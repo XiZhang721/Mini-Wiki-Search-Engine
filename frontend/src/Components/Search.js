@@ -17,7 +17,7 @@ function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default form submission behavior
-    const filteredQuery = content.replace(/[^a-zA-Z0-9 ]/g, "");
+    const filteredQuery = content.replace(/-/g, " ").replace(/[^a-zA-Z0-9 ]/g, "");
     const query = `/search?query=${filteredQuery}`
     navigate('./results', { state: { searchTerm: content, searchQuery: query } });
   };
