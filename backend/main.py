@@ -93,7 +93,8 @@ def get_data():
                 search_result = search.search(str(query_data))
         else:
             search_result = search.search(str(query_data))
-        
+        if (search_result == []):
+            return jsonify({})     
         keys,vals = search.mapping_id(search_result)
         packed = search.package_val(search_result,keys,vals)
         # print(search_result)
@@ -128,6 +129,8 @@ def get_adv_data():
             search_result = list(set.intersection(*record))
         else:
             search_result = list(set.union(*record))
+        if (search_result == []):
+            return jsonify({})
         keys,vals = search.mapping_id(search_result)
         packed = search.package_val(search_result,keys,vals)
         return jsonify(packed)    
@@ -191,7 +194,7 @@ def give_recommend():
 
 if __name__ == '__main__':
     # port = int(os.environ.get('PORT'))
-    app.run(host='0.0.0.0')
+    app.run(host='localhost')
 
 
     

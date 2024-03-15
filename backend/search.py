@@ -15,10 +15,14 @@ import random
 # app = Flask(__name__)
 # r = redis.Redis(host='localhost', port=6379, db=0)
 
-pool0 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=0, password='114514')
-pool1 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=1, password='114514')
-pool2 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=2, password='114514')
-pool3 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=3, password='114514')
+# pool0 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=0, password='114514')
+# pool1 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=1, password='114514')
+# pool2 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=2, password='114514')
+# pool3 = redis.ConnectionPool(host='34.163.26.53', port=6379, db=3, password='114514')
+pool0 = redis.ConnectionPool(host='0.0.0.0', port=6379, db=0, password='114514')
+pool1 = redis.ConnectionPool(host='0.0.0.0', port=6379, db=1, password='114514')
+pool2 = redis.ConnectionPool(host='0.0.0.0', port=6379, db=2, password='114514')
+pool3 = redis.ConnectionPool(host='0.0.0.0', port=6379, db=3, password='114514')
 
 r = redis.StrictRedis(connection_pool=pool0)
 r1 = redis.StrictRedis(connection_pool=pool1)
@@ -354,6 +358,8 @@ def get_title(id:int)->str:
 # TODO: sort
 def search(query:str)-> list:
     result = search_query(query=query)
+    if (result == []):
+        return []
     clean_q = [clean_search_word(i) for i in re.split(' AND | OR ',query)]
     # st = time.time()
     # record = []
@@ -381,12 +387,12 @@ def search(query:str)-> list:
     # print()
     # return [y for _,y in record] == [y for _,y in record_1]
     temp = [y for _,y in record_1]
-    # limit = 50
-    # if (len(temp) <= limit):
-    #     return temp
-    # else:
-    #     return temp[:limit] 
-    return temp
+    limit = 30
+    if (len(temp) <= limit):
+        return temp
+    else:
+        return temp[:limit] 
+    # return temp
 
 def mapping_id(a_list):
     return [((r1.hkeys(i))[0]).decode() for i in a_list], [((r1.hvals(i))[0]).decode() for i in a_list]

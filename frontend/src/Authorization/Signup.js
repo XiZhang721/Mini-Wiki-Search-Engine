@@ -22,7 +22,7 @@ const Signup = () => {
       await signUp(email, password);
       try {
         const sanitizedEmail = email.replace(/\./g, '-');
-        const url = `http://34.163.26.53:5000/register?username=${encodeURIComponent(sanitizedEmail)}`;
+        const url = `https://ttds.myddns.me/register?username=${encodeURIComponent(sanitizedEmail)}`;
         console.log('Sending request to:', url);
         const response = await axios.get(url);
         console.log(response);
