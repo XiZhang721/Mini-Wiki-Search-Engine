@@ -387,7 +387,7 @@ def search(query:str)-> list:
     # print()
     # return [y for _,y in record] == [y for _,y in record_1]
     temp = [y for _,y in record_1]
-    limit = 30
+    limit = 50
     if (len(temp) <= limit):
         return temp
     else:
